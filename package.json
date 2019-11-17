@@ -92,6 +92,9 @@
       "react",
       "react-hooks"
     ],
+    "rules": {
+      "@typescript-eslint/interface-name-prefix": "warn"
+    },
     "settings": {
       "react": {
         "version": "detect"

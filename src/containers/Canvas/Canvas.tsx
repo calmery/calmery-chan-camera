@@ -1,31 +1,17 @@
 import * as React from "react";
 import { connect } from "react-redux";
+import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
+import CanvasLayer from "../../components/CanvasLayer";
 
-enum CanvasLayerKind {
-  base,
-  normal
-}
-
-interface CanvasLayer {
-  kind: CanvasLayerKind;
-  base64: string;
-  width: number;
-  height: number;
-  effects: {
-    scale: number;
-    rotate: number;
-  };
-}
-
-interface CanvasState {
-  canvasLayers: CanvasLayer[];
+interface ICanvasState {
+  canvasLayers: ICanvasLayer[];
   canvas: {
     width: number;
     height: number;
   };
 }
 
-class Canvas extends React.Component<{}, CanvasState> {
+class Canvas extends React.Component<{}, ICanvasState> {
   constructor(props: {}) {
     super(props);
 
@@ -80,7 +66,7 @@ class Canvas extends React.Component<{}, CanvasState> {
   private convertUrlToLayer = (
     kind: CanvasLayerKind,
     imageUrl: string
-  ): Promise<CanvasLayer> => {
+  ): Promise<ICanvasLayer> => {
     return new Promise((resolve, reject) => {
       const image = new Image();
 
@@ -103,6 +89,8 @@ class Canvas extends React.Component<{}, CanvasState> {
           base64: canvas.toDataURL("image/png"),
           width,
           height,
+          x: 0,
+          y: 0,
           effects: {
             scale: 1,
             rotate: 0
@@ -114,17 +102,13 @@ class Canvas extends React.Component<{}, CanvasState> {
     });
   };
 
-  private getBaseLayer = (): CanvasLayer | undefined => {
+  private getBaseLayer = (): ICanvasLayer | undefined => {
     const { canvasLayers } = this.state;
     return canvasLayers.find(({ kind }) => kind === CanvasLayerKind.base);
   };
 
-  private renderCanvasLayer = (canvasLayer: CanvasLayer, index: number) => {
-    const { base64, width, height } = canvasLayer;
-
-    return (
-      <image key={index} xlinkHref={base64} width={width} height={height} />
-    );
+  private renderCanvasLayer = (canvasLayer: ICanvasLayer, index: number) => {
+    return <CanvasLayer key={index} {...canvasLayer} />;
   };
 }
 
