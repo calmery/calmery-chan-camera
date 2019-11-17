@@ -41,6 +41,7 @@
     "file-loader": "4.2.0",
     "html-webpack-plugin": "4.0.0-beta.11",
     "husky": "3.0.9",
+    "identity-obj-proxy": "3.0.0",
     "jest": "24.9.0",
     "lint-staged": "9.4.3",
     "mini-css-extract-plugin": "0.8.0",
@@ -118,7 +119,8 @@
       "tsx"
     ],
     "moduleNameMapper": {
-      "\\.svg$": "@svgr/webpack"
+      "\\.svg$": "@svgr/webpack",
+      "\\.scss$": "identity-obj-proxy"
     },
     "roots": [
       "<rootDir>/src"
