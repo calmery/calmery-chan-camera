@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
+import autoprefixer from "autoprefixer";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import * as path from "path";
 import TerserPlugin from "terser-webpack-plugin";
 import {
@@ -59,6 +62,17 @@ const production: Configuration = {
     ]
   },
   plugins: [
+    new OptimizeCSSAssetsPlugin({
+      cssProcessorOptions: {
+        map: {
+          annotation: true,
+          inline: false
+        }
+      }
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[contenthash].css"
+    }),
     new WorkboxWebpackPlugin.GenerateSW({
       clientsClaim: true,
       exclude: [/\.map$/],
@@ -78,6 +92,36 @@ export default merge(
     module: {
       strictExportPresence: true,
       rules: [
+        {
+          test: /\.scss$/,
+          loader: [
+            process.env.NODE_ENV === "production"
+              ? MiniCssExtractPlugin.loader
+              : "style-loader",
+            "css-modules-typescript-loader",
+            {
+              loader: "css-loader",
+              options: {
+                modules: true,
+                sourceMap: process.env.NODE_ENV !== "production",
+                url: false
+              }
+            },
+            {
+              loader: "postcss-loader",
+              options: {
+                ident: "postcss",
+                plugins: [autoprefixer]
+              }
+            },
+            {
+              loader: "sass-loader",
+              options: {
+                sourceMap: process.env.NODE_ENV !== "production"
+              }
+            }
+          ]
+        },
         {
           test: /\.tsx?$/,
           loader: "ts-loader"
