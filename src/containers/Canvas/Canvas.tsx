@@ -47,15 +47,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
       canvasLayers: [
         await this.convertUrlToLayer(
           CanvasLayerKind.base,
-          "/images/background.jpg"
+          "images/background.jpg"
         ),
         await this.convertUrlToLayer(
           CanvasLayerKind.normal,
-          "/images/layer-1.png"
+          "images/layer-1.png"
         ),
         await this.convertUrlToLayer(
           CanvasLayerKind.normal,
-          "/images/layer-2.png"
+          "images/layer-2.png"
         )
       ]
     });
