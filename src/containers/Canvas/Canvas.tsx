@@ -31,15 +31,18 @@ class Canvas extends React.Component<{}, ICanvasState> {
       },
       canvasLayers: [],
       canvas: {
-        // ひとまず 1500 x 500 の画像を使う前提で作る
-        width: window.innerWidth - 48, // 画面横にスペースを作る
+        width: window.innerWidth - 48,
         height: (window.innerWidth - 48) / 3
       }
     };
   }
 
-  private container: React.RefObject<SVGSVGElement> = React.createRef();
-  private exporter: React.RefObject<HTMLDivElement> = React.createRef();
+  // Refs
+
+  private container: React.RefObject<HTMLDivElement> = React.createRef();
+  private canvas: React.RefObject<SVGSVGElement> = React.createRef();
+
+  // Life Cycles
 
   public componentDidMount = async () => {
     this.setState({
@@ -67,9 +70,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
     window.removeEventListener("resize", this.handleOnResizeWindow);
   };
 
+  // Render Functions
+
   public render = () => {
     const { canvas, canvasLayers } = this.state;
-    const baseLayer = this.getBaseLayer();
+    const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
       return null;
@@ -77,9 +82,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     return (
       <React.Fragment>
-        <div className={styles.container} ref={this.exporter}>
+        <div className={styles.container} ref={this.container}>
           <svg
-            ref={this.container}
+            ref={this.canvas}
             width={canvas.width}
             height={canvas.height}
             viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
@@ -113,50 +118,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
-  private convertUrlToLayer = (
-    kind: CanvasLayerKind,
-    imageUrl: string
-  ): Promise<ICanvasLayer> => {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-
-      image.onload = () => {
-        const { width, height } = image;
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
-        const context = canvas.getContext("2d");
-
-        if (context === null) {
-          return reject();
-        }
-
-        context.drawImage(image, 0, 0);
-
-        resolve({
-          kind,
-          base64: canvas.toDataURL("image/png"),
-          width,
-          height,
-          x: 0,
-          y: 0,
-          effects: {
-            scale: 1,
-            rotate: 0
-          }
-        });
-      };
-
-      image.src = imageUrl;
-    });
-  };
-
-  private getBaseLayer = (): ICanvasLayer | undefined => {
-    const { canvasLayers } = this.state;
-    return canvasLayers.find(({ kind }) => kind === CanvasLayerKind.base);
-  };
-
   private renderCanvasLayer = (canvasLayer: ICanvasLayer, index: number) => {
     return (
       <CanvasLayer
@@ -169,31 +130,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
-  private convertDataUrlToBlob = (dataUrl: string) => {
-    const type = dataUrl
-      .split(",")[0]
-      .split(":")[1]
-      .split(";")[0];
-    const decodedData = atob(dataUrl.split(",")[1]);
-    const buffer = new Uint8Array(decodedData.length);
-    for (let i = 0; i < decodedData.length; i++) {
-      buffer[i] = decodedData.charCodeAt(i);
-    }
-    return new Blob([buffer.buffer], { type });
-  };
-
-  private getRatio = () => {
-    const { canvas } = this.state;
-    const baseLayer = this.getBaseLayer();
-
-    if (!baseLayer) {
-      return 0;
-    }
-
-    return baseLayer.width / canvas.width;
-  };
-
-  // Events
+  // Event Handlers
 
   private handleOnResizeWindow = () => {
     this.setState({
@@ -260,11 +197,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   private handleOnClickExport = () => {
-    if (this.exporter.current === null) {
+    if (this.container.current === null) {
       return;
     }
 
-    const svg = new Blob([this.exporter.current.innerHTML], {
+    const svg = new Blob([this.container.current.innerHTML], {
       type: "image/svg+xml;charset=utf-8"
     });
     const url = URL.createObjectURL(svg);
@@ -311,11 +248,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     const canvasLayer = canvasLayers[selectedLayerIndex!];
 
-    if (this.container.current === null) {
+    if (this.canvas.current === null) {
       return;
     }
 
-    const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
+    const { x, y } = this.canvas.current.getBoundingClientRect() as DOMRect;
     const ratio = this.getRatio();
 
     let clientX;
@@ -349,12 +286,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     if (
       canvasLayer.kind === CanvasLayerKind.base ||
-      this.container.current === null
+      this.canvas.current === null
     ) {
       return;
     }
 
-    const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
+    const { x, y } = this.canvas.current.getBoundingClientRect() as DOMRect;
     const ratio = this.getRatio();
 
     let clientX;
@@ -401,6 +338,76 @@ class Canvas extends React.Component<{}, ICanvasState> {
     index: number
   ) => {
     this.setState({ selectedLayerIndex: index });
+  };
+
+  // Helper Functions
+
+  private convertUrlToLayer = (
+    kind: CanvasLayerKind,
+    imageUrl: string
+  ): Promise<ICanvasLayer> => {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+
+      image.onload = () => {
+        const { width, height } = image;
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (context === null) {
+          return reject();
+        }
+
+        context.drawImage(image, 0, 0);
+
+        resolve({
+          kind,
+          base64: canvas.toDataURL("image/png"),
+          width,
+          height,
+          x: 0,
+          y: 0,
+          effects: {
+            scale: 1,
+            rotate: 0
+          }
+        });
+      };
+
+      image.src = imageUrl;
+    });
+  };
+
+  private findBaseLayer = (): ICanvasLayer | undefined => {
+    const { canvasLayers } = this.state;
+    return canvasLayers.find(({ kind }) => kind === CanvasLayerKind.base);
+  };
+
+  private convertDataUrlToBlob = (dataUrl: string) => {
+    const type = dataUrl
+      .split(",")[0]
+      .split(":")[1]
+      .split(";")[0];
+    const decodedData = atob(dataUrl.split(",")[1]);
+    const buffer = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; i++) {
+      buffer[i] = decodedData.charCodeAt(i);
+    }
+    return new Blob([buffer.buffer], { type });
+  };
+
+  private getRatio = () => {
+    const { canvas } = this.state;
+    const baseLayer = this.findBaseLayer();
+
+    if (!baseLayer) {
+      return 0;
+    }
+
+    return baseLayer.width / canvas.width;
   };
 }
 
