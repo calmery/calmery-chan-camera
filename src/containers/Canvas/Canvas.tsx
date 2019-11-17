@@ -6,6 +6,7 @@ import styles from "./Canvas.scss";
 
 interface ICanvasState {
   isDragging: boolean;
+  isOpenLayerMenu: boolean;
   selectedLayerIndex: number | null;
   offsetMousePosition: {
     x: number;
@@ -24,6 +25,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     this.state = {
       isDragging: false,
+      isOpenLayerMenu: false,
       selectedLayerIndex: null,
       offsetMousePosition: {
         x: 0,
@@ -51,14 +53,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
         await this.convertUrlToLayer(
           CanvasLayerKind.base,
           "images/background.jpg"
-        ),
-        await this.convertUrlToLayer(
-          CanvasLayerKind.normal,
-          "images/layer-1.png"
-        ),
-        await this.convertUrlToLayer(
-          CanvasLayerKind.normal,
-          "images/layer-2.png"
         )
       ]
     });
@@ -73,7 +67,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Render Functions
 
   public render = () => {
-    const { canvas, canvasLayers } = this.state;
+    const { canvas, canvasLayers, isOpenLayerMenu } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
@@ -114,6 +108,57 @@ class Canvas extends React.Component<{}, ICanvasState> {
           onChange={this.handleOnChangeRotate}
         />
         <button onClick={this.handleOnClickExport}>export</button>
+        <button
+          onClick={() => {
+            this.setState({ isOpenLayerMenu: true });
+          }}
+        >
+          add
+        </button>
+
+        {isOpenLayerMenu && (
+          <div
+            className={styles.layerBackground}
+            onClick={() => {
+              this.setState({ isOpenLayerMenu: false });
+            }}
+          >
+            <div className={styles.layerContainer}>
+              <div className={styles.layers}>
+                {(() => {
+                  return [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ].map(key => {
+                    return (
+                      <div
+                        key={key}
+                        className={styles.layer}
+                        onClick={() => this.handleOnClickAddLayer(key)}
+                      >
+                        <img src={`/images/${key}.png`} />
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
       </React.Fragment>
     );
   };
@@ -273,6 +318,18 @@ class Canvas extends React.Component<{}, ICanvasState> {
     };
 
     this.setState({ canvasLayers });
+  };
+
+  private handleOnClickAddLayer = async (key: number) => {
+    this.setState({
+      canvasLayers: [
+        ...this.state.canvasLayers,
+        await this.convertUrlToLayer(
+          CanvasLayerKind.normal,
+          `/images/${key}.png`
+        )
+      ]
+    });
   };
 
   private handleOnMouseDown = (

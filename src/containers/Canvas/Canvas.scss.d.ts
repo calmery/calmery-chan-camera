@@ -2,6 +2,10 @@
 // Please do not change this file!
 interface CssExports {
   container: string;
+  layer: string;
+  layerBackground: string;
+  layerContainer: string;
+  layers: string;
 }
 export const cssExports: CssExports;
 export default cssExports;
