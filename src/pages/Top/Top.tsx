@@ -1,6 +1,6 @@
-import * as React from 'react';
-import Counter from "../../containers/Counter/Counter";
+import * as React from "react";
+import Canvas from "../../containers/Canvas";
 
-const Top: React.FC = () => <Counter />;
+const Top: React.FC = () => <Canvas />;
 
 export default Top;

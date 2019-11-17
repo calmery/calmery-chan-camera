@@ -1,11 +1,11 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import Top from './Top';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import Top from "./Top";
 import { store } from "../../modules";
-import { Provider } from 'react-redux';
+import { Provider } from "react-redux";
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
+it("renders without crashing", () => {
+  const div = document.createElement("div");
   ReactDOM.render(
     <Provider store={store}>
       <Top />
