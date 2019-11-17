@@ -51,7 +51,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
         ),
         await this.convertUrlToLayer(
           CanvasLayerKind.normal,
-          "/images/layer.png"
+          "/images/layer-1.png"
+        ),
+        await this.convertUrlToLayer(
+          CanvasLayerKind.normal,
+          "/images/layer-2.png"
         )
       ]
     });
@@ -159,6 +163,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
         {...canvasLayer}
         onMouseDown={event => this.handleOnMouseDown(event, index)}
         onMouseUp={event => this.handleOnMouseUp(event, index)}
+        onClick={event => this.handleOnClick(event, index)}
       />
     );
   };
@@ -355,7 +360,14 @@ class Canvas extends React.Component<{}, ICanvasState> {
       return;
     }
 
-    this.setState({ isDragging: false });
+    this.setState({ selectedLayerIndex: null, isDragging: false });
+  };
+
+  private handleOnClick = (
+    _: React.MouseEvent<SVGImageElement, MouseEvent>,
+    index: number
+  ) => {
+    this.setState({ selectedLayerIndex: index });
   };
 }
 

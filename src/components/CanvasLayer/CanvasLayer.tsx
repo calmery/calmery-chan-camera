@@ -4,6 +4,7 @@ import { ICanvasLayer } from "../../types/CanvasLayer";
 interface ICanvasLayerProps extends ICanvasLayer {
   onMouseDown: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
   onMouseUp: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
+  onClick: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
 }
 
 const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
@@ -13,6 +14,7 @@ const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
     height,
     onMouseDown,
     onMouseUp,
+    onClick,
     x,
     y,
     effects
@@ -27,6 +29,7 @@ const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
       }) rotate(${effects.rotate} ${width / 2} ${height / 2})`}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
+      onClick={onClick}
     />
   );
 };
