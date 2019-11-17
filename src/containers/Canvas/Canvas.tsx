@@ -2,6 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
 import CanvasLayer from "../../components/CanvasLayer";
+import styles from "./Canvas.scss";
 
 interface ICanvasState {
   isDragging: boolean;
@@ -31,8 +32,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
       canvasLayers: [],
       canvas: {
         // ひとまず 1500 x 500 の画像を使う前提で作る
-        width: window.innerWidth,
-        height: window.innerWidth / 3
+        width: window.innerWidth - 48, // 画面横にスペースを作る
+        height: (window.innerWidth - 48) / 3
       }
     };
   }
@@ -71,19 +72,21 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     return (
       <React.Fragment>
-        <svg
-          ref={this.container}
-          width={canvas.width}
-          height={canvas.height}
-          viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
-          version="1.1"
-          baseProfile="full"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-          onMouseMove={this.handleOnMouseMove}
-        >
-          {canvasLayers.map(this.renderCanvasLayer)}
-        </svg>
+        <div className={styles.container}>
+          <svg
+            ref={this.container}
+            width={canvas.width}
+            height={canvas.height}
+            viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
+            version="1.1"
+            baseProfile="full"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+            onMouseMove={this.handleOnMouseMove}
+          >
+            {canvasLayers.map(this.renderCanvasLayer)}
+          </svg>
+        </div>
 
         <input
           type="range"
