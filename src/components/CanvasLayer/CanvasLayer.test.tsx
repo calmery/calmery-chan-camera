@@ -17,6 +17,8 @@ it("renders without crashing", () => {
         scale: 1,
         rotate: 0
       }}
+      onMouseDown={() => {}}
+      onMouseUp={() => {}}
     />,
     div
   );

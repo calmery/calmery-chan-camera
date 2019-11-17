@@ -4,6 +4,11 @@ import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
 import CanvasLayer from "../../components/CanvasLayer";
 
 interface ICanvasState {
+  draggingTargetIndex: number | null;
+  offsetMousePosition: {
+    x: number;
+    y: number;
+  };
   canvasLayers: ICanvasLayer[];
   canvas: {
     width: number;
@@ -16,13 +21,20 @@ class Canvas extends React.Component<{}, ICanvasState> {
     super(props);
 
     this.state = {
+      draggingTargetIndex: null,
+      offsetMousePosition: {
+        x: 0,
+        y: 0
+      },
       canvasLayers: [],
       canvas: {
-        width: 900,
-        height: 300
+        width: 1500,
+        height: 500
       }
     };
   }
+
+  private container: React.RefObject<SVGSVGElement> = React.createRef();
 
   public componentDidMount = async () => {
     this.setState({
@@ -50,6 +62,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     return (
       <svg
+        ref={this.container}
         width={canvas.width}
         height={canvas.height}
         viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
@@ -57,6 +70,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
         baseProfile="full"
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
+        onMouseMove={this.handleOnMouseMove}
       >
         {canvasLayers.map(this.renderCanvasLayer)}
       </svg>
@@ -108,7 +122,85 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   private renderCanvasLayer = (canvasLayer: ICanvasLayer, index: number) => {
-    return <CanvasLayer key={index} {...canvasLayer} />;
+    return (
+      <CanvasLayer
+        key={index}
+        {...canvasLayer}
+        onMouseDown={event => this.handleOnMouseDown(event, index)}
+        onMouseUp={event => this.handleOnMouseUp(event, index)}
+      />
+    );
+  };
+
+  // Events
+
+  private handleOnMouseMove = (
+    event: React.MouseEvent<SVGSVGElement, MouseEvent>
+  ) => {
+    const {
+      draggingTargetIndex,
+      canvasLayers,
+      offsetMousePosition
+    } = this.state;
+
+    if (draggingTargetIndex === null) {
+      return;
+    }
+
+    const canvasLayer = canvasLayers[draggingTargetIndex];
+
+    if (this.container.current === null) {
+      return;
+    }
+
+    const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
+
+    canvasLayers[draggingTargetIndex] = {
+      ...canvasLayers[draggingTargetIndex],
+      x: Math.round(event.clientX - x) + offsetMousePosition.x,
+      y: Math.round(event.clientY - y) + offsetMousePosition.y
+    };
+
+    this.setState({ canvasLayers });
+  };
+
+  private handleOnMouseDown = (
+    event: React.MouseEvent<SVGImageElement, MouseEvent>,
+    index: number
+  ) => {
+    const { canvasLayers } = this.state;
+    const canvasLayer = canvasLayers[index];
+
+    if (
+      canvasLayer.kind === CanvasLayerKind.base ||
+      this.container.current === null
+    ) {
+      return;
+    }
+
+    const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
+
+    this.setState({
+      draggingTargetIndex: index,
+      offsetMousePosition: {
+        x: canvasLayer.x - Math.round(event.clientX - x),
+        y: canvasLayer.y - Math.round(event.clientY - y)
+      }
+    });
+  };
+
+  private handleOnMouseUp = (
+    _: React.MouseEvent<SVGImageElement, MouseEvent>,
+    index: number
+  ) => {
+    const { canvasLayers } = this.state;
+    const canvasLayer = canvasLayers[index];
+
+    if (canvasLayer.kind === CanvasLayerKind.base) {
+      return;
+    }
+
+    this.setState({ draggingTargetIndex: null });
   };
 }
 
