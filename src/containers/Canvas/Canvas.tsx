@@ -4,7 +4,8 @@ import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
 import CanvasLayer from "../../components/CanvasLayer";
 
 interface ICanvasState {
-  draggingTargetIndex: number | null;
+  isDragging: boolean;
+  selectedLayerIndex: number | null;
   offsetMousePosition: {
     x: number;
     y: number;
@@ -21,7 +22,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
     super(props);
 
     this.state = {
-      draggingTargetIndex: null,
+      isDragging: false,
+      selectedLayerIndex: null,
       offsetMousePosition: {
         x: 0,
         y: 0
@@ -138,16 +140,17 @@ class Canvas extends React.Component<{}, ICanvasState> {
     event: React.MouseEvent<SVGSVGElement, MouseEvent>
   ) => {
     const {
-      draggingTargetIndex,
+      selectedLayerIndex,
+      isDragging,
       canvasLayers,
       offsetMousePosition
     } = this.state;
 
-    if (draggingTargetIndex === null) {
+    if (!isDragging) {
       return;
     }
 
-    const canvasLayer = canvasLayers[draggingTargetIndex];
+    const canvasLayer = canvasLayers[selectedLayerIndex!];
 
     if (this.container.current === null) {
       return;
@@ -155,8 +158,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
 
-    canvasLayers[draggingTargetIndex] = {
-      ...canvasLayers[draggingTargetIndex],
+    canvasLayers[selectedLayerIndex!] = {
+      ...canvasLayer,
       x: Math.round(event.clientX - x) + offsetMousePosition.x,
       y: Math.round(event.clientY - y) + offsetMousePosition.y
     };
@@ -181,7 +184,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
 
     this.setState({
-      draggingTargetIndex: index,
+      isDragging: true,
+      selectedLayerIndex: index,
       offsetMousePosition: {
         x: canvasLayer.x - Math.round(event.clientX - x),
         y: canvasLayer.y - Math.round(event.clientY - y)
@@ -200,7 +204,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       return;
     }
 
-    this.setState({ draggingTargetIndex: null });
+    this.setState({ isDragging: false, selectedLayerIndex: null });
   };
 }
 
