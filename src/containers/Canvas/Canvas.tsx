@@ -39,6 +39,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   }
 
   private container: React.RefObject<SVGSVGElement> = React.createRef();
+  private exporter: React.RefObject<HTMLDivElement> = React.createRef();
 
   public componentDidMount = async () => {
     this.setState({
@@ -72,7 +73,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     return (
       <React.Fragment>
-        <div className={styles.container}>
+        <div className={styles.container} ref={this.exporter}>
           <svg
             ref={this.container}
             width={canvas.width}
@@ -102,6 +103,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
           defaultValue="0"
           onChange={this.handleOnChangeRotate}
         />
+        <button onClick={this.handleOnClickExport}>export</button>
       </React.Fragment>
     );
   };
@@ -159,6 +161,19 @@ class Canvas extends React.Component<{}, ICanvasState> {
         onMouseUp={event => this.handleOnMouseUp(event, index)}
       />
     );
+  };
+
+  private convertDataUrlToBlob = (dataUrl: string) => {
+    const type = dataUrl
+      .split(",")[0]
+      .split(":")[1]
+      .split(";")[0];
+    const decodedData = atob(dataUrl.split(",")[1]);
+    const buffer = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; i++) {
+      buffer[i] = decodedData.charCodeAt(i);
+    }
+    return new Blob([buffer.buffer], { type });
   };
 
   private getRatio = () => {
@@ -236,6 +251,38 @@ class Canvas extends React.Component<{}, ICanvasState> {
     };
 
     this.setState({ canvasLayers });
+  };
+
+  private handleOnClickExport = () => {
+    if (this.exporter.current === null) {
+      return;
+    }
+
+    const svg = new Blob([this.exporter.current.innerHTML], {
+      type: "image/svg+xml;charset=utf-8"
+    });
+    const url = URL.createObjectURL(svg);
+
+    const image = new Image();
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1500;
+      canvas.height = 500;
+
+      const context = canvas.getContext("2d");
+
+      if (context === null) {
+        return;
+      }
+
+      context.drawImage(image, 0, 0, 1500, 500);
+
+      const blob = this.convertDataUrlToBlob(canvas.toDataURL());
+      window.open(URL.createObjectURL(blob));
+    };
+
+    image.src = url;
   };
 
   private handleOnMouseMove = (
