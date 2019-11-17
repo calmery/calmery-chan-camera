@@ -2,8 +2,16 @@ import * as React from "react";
 import { ICanvasLayer } from "../../types/CanvasLayer";
 
 interface ICanvasLayerProps extends ICanvasLayer {
-  onMouseDown: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
-  onMouseUp: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
+  onMouseDown: (
+    event:
+      | React.MouseEvent<SVGImageElement, MouseEvent>
+      | React.TouchEvent<SVGImageElement>
+  ) => void;
+  onMouseUp: (
+    event:
+      | React.MouseEvent<SVGImageElement, MouseEvent>
+      | React.TouchEvent<SVGImageElement>
+  ) => void;
   onClick: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
 }
 
@@ -28,6 +36,8 @@ const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
         effects.scale
       }) rotate(${effects.rotate} ${width / 2} ${height / 2})`}
       onMouseDown={onMouseDown}
+      onTouchStart={onMouseDown}
+      onTouchEnd={onMouseUp}
       onMouseUp={onMouseUp}
       onClick={onClick}
     />

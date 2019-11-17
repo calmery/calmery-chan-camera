@@ -88,6 +88,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
             onMouseMove={this.handleOnMouseMove}
+            onTouchMove={this.handleOnMouseMove}
           >
             {canvasLayers.map(this.renderCanvasLayer)}
           </svg>
@@ -291,7 +292,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   private handleOnMouseMove = (
-    event: React.MouseEvent<SVGSVGElement, MouseEvent>
+    event:
+      | React.MouseEvent<SVGSVGElement, MouseEvent>
+      | React.TouchEvent<SVGSVGElement>
   ) => {
     const {
       selectedLayerIndex,
@@ -299,6 +302,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
       canvasLayers,
       offsetMousePosition
     } = this.state;
+
+    event.stopPropagation();
 
     if (!isDragging) {
       return;
@@ -313,17 +318,30 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
     const ratio = this.getRatio();
 
+    let clientX;
+    let clientY;
+
+    if (Object.hasOwnProperty.call(event, "touches")) {
+      clientX = (event as React.TouchEvent<SVGSVGElement>).touches[0].clientX;
+      clientY = (event as React.TouchEvent<SVGSVGElement>).touches[0].clientY;
+    } else {
+      clientX = (event as React.MouseEvent<SVGSVGElement, MouseEvent>).clientX;
+      clientY = (event as React.MouseEvent<SVGSVGElement, MouseEvent>).clientY;
+    }
+
     canvasLayers[selectedLayerIndex!] = {
       ...canvasLayer,
-      x: Math.round(event.clientX * ratio - x) + offsetMousePosition.x,
-      y: Math.round(event.clientY * ratio - y) + offsetMousePosition.y
+      x: Math.round(clientX * ratio - x) + offsetMousePosition.x,
+      y: Math.round(clientY * ratio - y) + offsetMousePosition.y
     };
 
     this.setState({ canvasLayers });
   };
 
   private handleOnMouseDown = (
-    event: React.MouseEvent<SVGImageElement, MouseEvent>,
+    event:
+      | React.MouseEvent<SVGImageElement, MouseEvent>
+      | React.TouchEvent<SVGImageElement>,
     index: number
   ) => {
     const { canvasLayers } = this.state;
@@ -339,18 +357,33 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
     const ratio = this.getRatio();
 
+    let clientX;
+    let clientY;
+
+    if (Object.hasOwnProperty.call(event, "touches")) {
+      clientX = (event as React.TouchEvent<SVGImageElement>).touches[0].clientX;
+      clientY = (event as React.TouchEvent<SVGImageElement>).touches[0].clientY;
+    } else {
+      clientX = (event as React.MouseEvent<SVGImageElement, MouseEvent>)
+        .clientX;
+      clientY = (event as React.MouseEvent<SVGImageElement, MouseEvent>)
+        .clientY;
+    }
+
     this.setState({
       isDragging: true,
       selectedLayerIndex: index,
       offsetMousePosition: {
-        x: canvasLayer.x - Math.round(event.clientX * ratio - x),
-        y: canvasLayer.y - Math.round(event.clientY * ratio - y)
+        x: canvasLayer.x - Math.round(clientX * ratio - x),
+        y: canvasLayer.y - Math.round(clientY * ratio - y)
       }
     });
   };
 
   private handleOnMouseUp = (
-    _: React.MouseEvent<SVGImageElement, MouseEvent>,
+    _:
+      | React.MouseEvent<SVGImageElement, MouseEvent>
+      | React.TouchEvent<SVGImageElement>,
     index: number
   ) => {
     const { canvasLayers } = this.state;
