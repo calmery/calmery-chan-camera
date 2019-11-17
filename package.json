@@ -24,7 +24,7 @@
     "@types/react-redux": "7.1.5",
     "@types/react-router-dom": "5.1.2",
     "@types/redux-actions": "2.6.1",
-    "@types/terser-webpack-plugin": "1.2.1",
+    "@types/terser-webpack-plugin": "2.2.0",
     "@types/webpack-merge": "4.1.5",
     "@types/workbox-webpack-plugin": "4.1.0",
     "@typescript-eslint/eslint-plugin": "2.7.0",
