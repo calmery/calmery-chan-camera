@@ -30,8 +30,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
       },
       canvasLayers: [],
       canvas: {
-        width: 1500,
-        height: 500
+        // ひとまず 1500 x 500 の画像を使う前提で作る
+        width: window.innerWidth,
+        height: window.innerWidth / 3
       }
     };
   }
@@ -52,6 +53,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
         )
       ]
     });
+
+    window.addEventListener("resize", this.handleOnResizeWindow);
+  };
+
+  public componentWillUnmount = () => {
+    window.removeEventListener("resize", this.handleOnResizeWindow);
   };
 
   public render = () => {
@@ -151,7 +158,27 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
+  private getRatio = () => {
+    const { canvas } = this.state;
+    const baseLayer = this.getBaseLayer();
+
+    if (!baseLayer) {
+      return 0;
+    }
+
+    return baseLayer.width / canvas.width;
+  };
+
   // Events
+
+  private handleOnResizeWindow = () => {
+    this.setState({
+      canvas: {
+        width: window.innerWidth,
+        height: window.innerWidth / 3
+      }
+    });
+  };
 
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -229,11 +256,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
+    const ratio = this.getRatio();
 
     canvasLayers[selectedLayerIndex!] = {
       ...canvasLayer,
-      x: Math.round(event.clientX - x) + offsetMousePosition.x,
-      y: Math.round(event.clientY - y) + offsetMousePosition.y
+      x: Math.round(event.clientX * ratio - x) + offsetMousePosition.x,
+      y: Math.round(event.clientY * ratio - y) + offsetMousePosition.y
     };
 
     this.setState({ canvasLayers });
@@ -254,13 +282,14 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     const { x, y } = this.container.current.getBoundingClientRect() as DOMRect;
+    const ratio = this.getRatio();
 
     this.setState({
       isDragging: true,
       selectedLayerIndex: index,
       offsetMousePosition: {
-        x: canvasLayer.x - Math.round(event.clientX - x),
-        y: canvasLayer.y - Math.round(event.clientY - y)
+        x: canvasLayer.x - Math.round(event.clientX * ratio - x),
+        y: canvasLayer.y - Math.round(event.clientY * ratio - y)
       }
     });
   };
