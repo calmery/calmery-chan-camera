@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { ConnectedRouter as Router } from "connected-react-router";
 import { store, history } from "./modules";
 import * as serviceWorker from "./serviceWorker";
+import "animate.css/animate.css";
 import Top from "./pages/Top";
 
 serviceWorker.register();

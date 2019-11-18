@@ -93,6 +93,15 @@ export default merge(
       strictExportPresence: true,
       rules: [
         {
+          test: /\.css$/,
+          loader: [
+            process.env.NODE_ENV === "production"
+              ? MiniCssExtractPlugin.loader
+              : "style-loader",
+            "css-loader"
+          ]
+        },
+        {
           test: /\.scss$/,
           loader: [
             process.env.NODE_ENV === "production"
