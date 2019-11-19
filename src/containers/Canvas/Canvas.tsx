@@ -17,6 +17,7 @@ interface ICanvasState {
   };
   emphasisIndex: number;
   canvasLayers: ICanvasLayer[];
+  exportedBase64: string | null;
 }
 
 class Canvas extends React.Component<{}, ICanvasState> {
@@ -32,7 +33,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
         x: 0,
         y: 0
       },
-      canvasLayers: []
+      canvasLayers: [],
+      exportedBase64: null
     };
   }
 
@@ -58,7 +60,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Render Functions
 
   public render = () => {
-    const { canvasLayers, isOpenLayerMenu, emphasisIndex } = this.state;
+    const {
+      canvasLayers,
+      isOpenLayerMenu,
+      emphasisIndex,
+      exportedBase64
+    } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
@@ -128,6 +135,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
             });
           }}
         />
+
+        {exportedBase64 !== null && (
+          <div className={styles.exportedBase64}>
+            <img src={exportedBase64} />
+          </div>
+        )}
 
         <Modal hidden={!isOpenLayerMenu}>
           <div
@@ -260,7 +273,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     const svg = new Blob([this.container.current.innerHTML], {
-      type: "image/svg+xml;charset=utf-8"
+      type: "image/svg+xml"
     });
     const url = URL.createObjectURL(svg);
 
@@ -279,9 +292,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       }
 
       context.drawImage(image, 0, 0, baseLayer.width, baseLayer.height);
-
-      const blob = this.convertDataUrlToBlob(canvas.toDataURL());
-      window.open(URL.createObjectURL(blob));
+      this.setState({ exportedBase64: canvas.toDataURL() });
     };
 
     image.src = url;

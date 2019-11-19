@@ -4,6 +4,7 @@ interface CssExports {
   canvasLayerList: string;
   closeLayerMenuButton: string;
   container: string;
+  exportedBase64: string;
   inputs: string;
   svg: string;
 }
