@@ -3,6 +3,9 @@ import { connect } from "react-redux";
 import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
 import CanvasLayer from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
+import CanvasLayerSelector from "../CanvasLayerSelector";
+import CanvasLayerList from "../../components/CanvasLayerList";
+import Modal from "../../components/Modal/Modal";
 
 interface ICanvasState {
   isDragging: boolean;
@@ -12,11 +15,8 @@ interface ICanvasState {
     x: number;
     y: number;
   };
+  emphasisIndex: number;
   canvasLayers: ICanvasLayer[];
-  canvas: {
-    width: number;
-    height: number;
-  };
 }
 
 class Canvas extends React.Component<{}, ICanvasState> {
@@ -27,15 +27,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
       isDragging: false,
       isOpenLayerMenu: false,
       selectedLayerIndex: null,
+      emphasisIndex: -1,
       offsetMousePosition: {
         x: 0,
         y: 0
       },
-      canvasLayers: [],
-      canvas: {
-        width: window.innerWidth - 48,
-        height: (window.innerWidth - 48) / 3
-      }
+      canvasLayers: []
     };
   }
 
@@ -47,27 +44,21 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Life Cycles
 
   public componentDidMount = async () => {
+    const canvasBaseLayer = await this.convertUrlToLayer(
+      CanvasLayerKind.base,
+      "images/background.jpg"
+    );
+
     this.setState({
       ...this.state,
-      canvasLayers: [
-        await this.convertUrlToLayer(
-          CanvasLayerKind.base,
-          "images/background.jpg"
-        )
-      ]
+      canvasLayers: [canvasBaseLayer]
     });
-
-    window.addEventListener("resize", this.handleOnResizeWindow);
-  };
-
-  public componentWillUnmount = () => {
-    window.removeEventListener("resize", this.handleOnResizeWindow);
   };
 
   // Render Functions
 
   public render = () => {
-    const { canvas, canvasLayers, isOpenLayerMenu } = this.state;
+    const { canvasLayers, isOpenLayerMenu, emphasisIndex } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
@@ -79,8 +70,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
         <div className={styles.container} ref={this.container}>
           <svg
             ref={this.canvas}
-            width={canvas.width}
-            height={canvas.height}
+            className={styles.svg}
+            width={window.innerWidth - 48}
+            height={
+              (window.innerWidth - 48) / (baseLayer.width / baseLayer.height)
+            }
             viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
             version="1.1"
             baseProfile="full"
@@ -93,72 +87,59 @@ class Canvas extends React.Component<{}, ICanvasState> {
           </svg>
         </div>
 
-        <input
-          type="range"
-          min="1"
-          max="5"
-          defaultValue="1"
-          onChange={this.handleOnChangeScale}
-        />
-        <input
-          type="range"
-          min="0"
-          max="359"
-          defaultValue="0"
-          onChange={this.handleOnChangeRotate}
-        />
-        <button onClick={this.handleOnClickExport}>export</button>
-        <button
-          onClick={() => {
-            this.setState({ isOpenLayerMenu: true });
-          }}
-        >
-          add
-        </button>
-
-        {isOpenLayerMenu && (
-          <div
-            className={styles.layerBackground}
-            onClick={() => {
-              this.setState({ isOpenLayerMenu: false });
-            }}
-          >
-            <div className={styles.layerContainer}>
-              <div className={styles.layers}>
-                {(() => {
-                  return [
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    16
-                  ].map(key => {
-                    return (
-                      <div
-                        key={key}
-                        className={styles.layer}
-                        onClick={() => this.handleOnClickAddLayer(key)}
-                      >
-                        <img src={`/images/${key}.png`} />
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
+        <div className={styles.inputs}>
+          <div>
+            <input
+              type="file"
+              multiple={false}
+              onChange={this.handleOnChangeFile}
+            />
           </div>
-        )}
+          <div>
+            <input
+              type="range"
+              min="1"
+              max="5"
+              defaultValue="1"
+              onChange={this.handleOnChangeScale}
+            />
+          </div>
+          <div>
+            <input
+              type="range"
+              min="0"
+              max="359"
+              defaultValue="0"
+              onChange={this.handleOnChangeRotate}
+            />
+          </div>
+          <div>
+            <button onClick={this.handleOnClickExport}>export</button>
+          </div>
+        </div>
+
+        <CanvasLayerList
+          emphasisIndex={emphasisIndex}
+          canvasLayers={canvasLayers}
+          onClick={(emphasisIndex: number) => {
+            this.setState({
+              emphasisIndex,
+              isOpenLayerMenu: emphasisIndex === -1
+            });
+          }}
+        />
+
+        <Modal hidden={!isOpenLayerMenu}>
+          <div
+            className={styles.closeLayerMenuButton}
+            onClick={() =>
+              this.setState({ isOpenLayerMenu: false, emphasisIndex: -2 })
+            }
+          >
+            û
+          </div>
+          <CanvasLayerSelector onSelect={this.handleOnClickAddLayer} />
+        </Modal>
       </React.Fragment>
     );
   };
@@ -177,28 +158,60 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   // Event Handlers
 
-  private handleOnResizeWindow = () => {
-    this.setState({
-      canvas: {
-        width: window.innerWidth,
-        height: window.innerWidth / 3
-      }
-    });
+  private handleOnChangeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+
+    if (files === null) {
+      return;
+    }
+
+    const file = files[0];
+    const reader = new FileReader();
+
+    reader.addEventListener(
+      "load",
+      async () => {
+        let baseLayerIndex: number | null = null;
+        const canvasLayers = this.state.canvasLayers;
+
+        canvasLayers.forEach((canvasLayer, index) => {
+          if (canvasLayer.kind === CanvasLayerKind.base) {
+            baseLayerIndex = index;
+          }
+        });
+
+        const nextBaseLayer = await this.convertUrlToLayer(
+          CanvasLayerKind.base,
+          reader.result as string
+        );
+
+        if (baseLayerIndex !== null) {
+          canvasLayers[baseLayerIndex] = nextBaseLayer;
+        } else {
+          canvasLayers.push(nextBaseLayer);
+        }
+
+        this.setState({ canvasLayers });
+      },
+      false
+    );
+
+    reader.readAsDataURL(file);
   };
 
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { selectedLayerIndex, canvasLayers } = this.state;
+    const { canvasLayers, emphasisIndex } = this.state;
 
-    if (selectedLayerIndex === null) {
+    if (emphasisIndex < 0) {
       return;
     }
 
     const scale = parseInt(event.target.value, 10);
-    const canvasLayer = canvasLayers[selectedLayerIndex!];
+    const canvasLayer = canvasLayers[emphasisIndex!];
 
-    canvasLayers[selectedLayerIndex!] = {
+    canvasLayers[emphasisIndex!] = {
       ...canvasLayer,
       x:
         canvasLayer.x +
@@ -222,15 +235,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnChangeRotate = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { selectedLayerIndex, canvasLayers } = this.state;
+    const { canvasLayers, emphasisIndex } = this.state;
 
-    if (selectedLayerIndex === null) {
+    if (emphasisIndex < 0) {
       return;
     }
 
-    const canvasLayer = canvasLayers[selectedLayerIndex!];
+    const canvasLayer = canvasLayers[emphasisIndex!];
 
-    canvasLayers[selectedLayerIndex!] = {
+    canvasLayers[emphasisIndex!] = {
       ...canvasLayer,
       effects: {
         ...canvasLayer.effects,
@@ -254,9 +267,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const image = new Image();
 
     image.onload = () => {
+      const baseLayer = this.findBaseLayer()!;
       const canvas = document.createElement("canvas");
-      canvas.width = 1500;
-      canvas.height = 500;
+      canvas.width = baseLayer.width;
+      canvas.height = baseLayer.height;
 
       const context = canvas.getContext("2d");
 
@@ -264,7 +278,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
         return;
       }
 
-      context.drawImage(image, 0, 0, 1500, 500);
+      context.drawImage(image, 0, 0, baseLayer.width, baseLayer.height);
 
       const blob = this.convertDataUrlToBlob(canvas.toDataURL());
       window.open(URL.createObjectURL(blob));
@@ -320,15 +334,14 @@ class Canvas extends React.Component<{}, ICanvasState> {
     this.setState({ canvasLayers });
   };
 
-  private handleOnClickAddLayer = async (key: number) => {
+  private handleOnClickAddLayer = async (url: string) => {
     this.setState({
       canvasLayers: [
         ...this.state.canvasLayers,
-        await this.convertUrlToLayer(
-          CanvasLayerKind.normal,
-          `/images/${key}.png`
-        )
-      ]
+        await this.convertUrlToLayer(CanvasLayerKind.normal, url)
+      ],
+      emphasisIndex: this.state.canvasLayers.length,
+      isOpenLayerMenu: false
     });
   };
 
@@ -457,14 +470,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   private getRatio = () => {
-    const { canvas } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (!baseLayer) {
       return 0;
     }
 
-    return baseLayer.width / canvas.width;
+    return baseLayer.width / (window.innerWidth - 48);
   };
 }
 
