@@ -1,30 +1,52 @@
 .container {
   display: flex;
-  padding: 24px 0;
   overflow: scroll;
+  overflow-scrolling: touch;
 }
 
-.canvasLayer {
-  width: 80px;
-  height: 70px;
-  border-radius: 8px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, .1);
-  cursor: pointer;
-  margin-left: 8px;
-  opacity: .42;
-  transition: ease .4s;
+.canvasLayerContainer {
+  padding: 24px 4px;
 
   &:first-child {
-    margin-left: 0px;
+    padding-left: 24px;
   }
 
-  &.emphasis {
-    opacity: 1;
-    transform: scale(1.06);
+  &:last-child {
+    padding-right: 24px;
   }
 
-  img {
-    height: 100%;
-    vertical-align: bottom;
+  .canvasLayer {
+    width: 80px;
+    height: 70px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    margin-left: 8px;
+    opacity: .42;
+    transition: ease .4s;
+
+    &:first-child {
+      margin-left: 0px;
+    }
+
+    &.emphasis {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+
+    &.addButton {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: rgba(60, 60, 60, 1);
+      font-family: CONDENSEicon;
+      transition: ease .4s;
+    }
+
+    img {
+      height: 100%;
+      vertical-align: bottom;
+    }
   }
 }

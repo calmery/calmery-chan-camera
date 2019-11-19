@@ -24,17 +24,28 @@ const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
         }
 
         return (
-          <div
-            className={classnames(styles.canvasLayer, {
-              [styles.emphasis]: currentIndex === emphasisIndex
-            })}
-            key={currentIndex}
-            onClick={() => onClick(currentIndex)}
-          >
-            <img src={base64} />
+          <div className={styles.canvasLayerContainer}>
+            <div
+              className={classnames(styles.canvasLayer, {
+                [styles.emphasis]: currentIndex === emphasisIndex
+              })}
+              key={currentIndex}
+              onClick={() => onClick(currentIndex)}
+            >
+              <img src={base64} />
+            </div>
           </div>
         );
       })}
+      <div className={styles.canvasLayerContainer} onClick={() => onClick(-1)}>
+        <div
+          className={classnames(styles.canvasLayer, styles.addButton, {
+            [styles.emphasis]: emphasisIndex === -1
+          })}
+        >
+          ï
+        </div>
+      </div>
     </div>
   );
 };
