@@ -1,6 +1,6 @@
 import * as React from "react";
 import classnames from "classnames";
-import { ICanvasLayer } from "../../types/CanvasLayer";
+import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
 import styles from "./CanvasLayerList.scss";
 
 interface ICanvasLayerListProps {
@@ -18,6 +18,10 @@ const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
     <div className={styles.container}>
       {canvasLayers.map((canvasLayer, currentIndex) => {
         const { base64 } = canvasLayer;
+
+        if (canvasLayer.kind === CanvasLayerKind.base) {
+          return null;
+        }
 
         return (
           <div
