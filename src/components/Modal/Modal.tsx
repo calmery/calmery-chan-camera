@@ -9,7 +9,7 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ children, hidden }) => {
-  const [isAnimationCompleted, setIsAnimationCompleted] = useState(true);
+  const [isAnimationCompleted, setIsAnimationCompleted] = useState(false);
 
   useEffect(() => {
     const animationTimer = setTimeout(
