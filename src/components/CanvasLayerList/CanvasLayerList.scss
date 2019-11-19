@@ -1,7 +1,7 @@
 .container {
   display: flex;
   overflow: scroll;
-  overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
 }
 
 .canvasLayerContainer {
@@ -18,6 +18,7 @@
   .canvasLayer {
     width: 80px;
     height: 70px;
+    background: rgba(255, 255, 255, 1);
     border-radius: 8px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, .1);
     cursor: pointer;
