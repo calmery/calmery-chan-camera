@@ -1,0 +1,31 @@
+.container {
+  display: flex;
+  padding: 24px 0;
+  overflow: scroll;
+}
+
+.canvasLayer {
+  width: 80px;
+  height: 70px;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .1);
+  cursor: pointer;
+  margin-left: 8px;
+  opacity: .42;
+  overflow: hidden;
+  transition: ease .4s;
+
+  &:first-child {
+    margin-left: 0px;
+  }
+
+  &.emphasis {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  img {
+    height: 100%;
+    vertical-align: bottom;
+  }
+}
