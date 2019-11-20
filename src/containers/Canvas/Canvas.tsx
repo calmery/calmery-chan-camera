@@ -18,7 +18,7 @@ interface ICanvasState {
   };
   emphasisIndex: number;
   canvasLayers: ICanvasLayer[];
-  exportedBase64: string | null;
+  exporting: boolean;
 }
 
 class Canvas extends React.Component<{}, ICanvasState> {
@@ -35,7 +35,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
         y: 0
       },
       canvasLayers: [],
-      exportedBase64: null
+      exporting: false
     };
   }
 
@@ -47,12 +47,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Render Functions
 
   public render = () => {
-    const {
-      canvasLayers,
-      isOpenLayerMenu,
-      emphasisIndex,
-      exportedBase64
-    } = this.state;
+    const { canvasLayers, isOpenLayerMenu, emphasisIndex } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
@@ -96,25 +91,34 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
         <div className={styles.inputs}>
           <div>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              defaultValue="1"
-              onChange={this.handleOnChangeScale}
-            />
+            <div className={styles.condense}>õ</div>
+            <div className={styles.fixedHeight}>
+              <input
+                className={styles.inputRange}
+                type="range"
+                min="1"
+                max="5"
+                defaultValue="1"
+                onChange={this.handleOnChangeScale}
+              />
+            </div>
           </div>
           <div>
-            <input
-              type="range"
-              min="0"
-              max="359"
-              defaultValue="0"
-              onChange={this.handleOnChangeRotate}
-            />
-          </div>
-          <div>
-            <button onClick={this.handleOnClickExport}>export</button>
+            <div className={styles.condense}>|</div>
+            <div className={styles.fixedHeight}>
+              <input
+                className={styles.inputRange}
+                type="range"
+                min="0"
+                max="359"
+                defaultValue="0"
+                onChange={this.handleOnChangeRotate}
+                onTouchMove={event => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -129,11 +133,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
           }}
         />
 
-        {exportedBase64 !== null && (
-          <div className={styles.exportedBase64}>
-            <img src={exportedBase64} />
-          </div>
-        )}
+        <div className={styles.exportButton} onClick={this.handleOnClickExport}>
+          <div>{this.state.exporting ? "変換中..." : "画像を保存する！"}</div>
+        </div>
+
+        <div className={styles.margin}></div>
 
         <Modal hidden={!isOpenLayerMenu}>
           <div
@@ -258,34 +262,46 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   private handleOnClickExport = () => {
-    if (this.container.current === null) {
-      return;
-    }
+    this.setState(
+      {
+        exporting: true
+      },
+      () => {
+        if (this.container.current === null) {
+          return;
+        }
 
-    const svg = new Blob([this.container.current.innerHTML], {
-      type: "image/svg+xml"
-    });
-    const url = URL.createObjectURL(svg);
+        const svg = new Blob([this.container.current.innerHTML], {
+          type: "image/svg+xml"
+        });
+        const url = URL.createObjectURL(svg);
+        const image = new Image();
 
-    const image = new Image();
+        image.onload = () => {
+          const baseLayer = this.findBaseLayer()!;
+          const canvas = document.createElement("canvas");
+          canvas.width = baseLayer.width;
+          canvas.height = baseLayer.height;
 
-    image.onload = () => {
-      const baseLayer = this.findBaseLayer()!;
-      const canvas = document.createElement("canvas");
-      canvas.width = baseLayer.width;
-      canvas.height = baseLayer.height;
+          const context = canvas.getContext("2d");
 
-      const context = canvas.getContext("2d");
+          if (context === null) {
+            return;
+          }
 
-      if (context === null) {
-        return;
+          context.drawImage(image, 0, 0, baseLayer.width, baseLayer.height);
+
+          const a = document.createElement("a");
+          a.href = canvas.toDataURL();
+          a.download = "calmery.png";
+          a.click();
+
+          this.setState({ exporting: false });
+        };
+
+        image.src = url;
       }
-
-      context.drawImage(image, 0, 0, baseLayer.width, baseLayer.height);
-      this.setState({ exportedBase64: canvas.toDataURL() });
-    };
-
-    image.src = url;
+    );
   };
 
   private handleOnMouseMove = (
@@ -300,6 +316,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       offsetMousePosition
     } = this.state;
 
+    event.preventDefault();
     event.stopPropagation();
 
     if (!isDragging) {

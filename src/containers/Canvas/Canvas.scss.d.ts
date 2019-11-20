@@ -3,12 +3,18 @@
 interface CssExports {
   canvasLayerList: string;
   closeLayerMenuButton: string;
+  condense: string;
   container: string;
+  exportButton: string;
   exportedBase64: string;
+  exporting: string;
+  fixedHeight: string;
+  inputRange: string;
   inputs: string;
   loadImageBackground: string;
   loadImageContainer: string;
   loadImageMessage: string;
+  margin: string;
   svg: string;
 }
 export const cssExports: CssExports;
