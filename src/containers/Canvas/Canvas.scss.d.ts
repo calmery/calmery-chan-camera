@@ -6,6 +6,9 @@ interface CssExports {
   container: string;
   exportedBase64: string;
   inputs: string;
+  loadImageBackground: string;
+  loadImageContainer: string;
+  loadImageMessage: string;
   svg: string;
 }
 export const cssExports: CssExports;

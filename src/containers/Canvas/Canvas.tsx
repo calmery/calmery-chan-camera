@@ -43,20 +43,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private container: React.RefObject<HTMLDivElement> = React.createRef();
   private canvas: React.RefObject<SVGSVGElement> = React.createRef();
 
-  // Life Cycles
-
-  public componentDidMount = async () => {
-    const canvasBaseLayer = await this.convertUrlToLayer(
-      CanvasLayerKind.base,
-      "images/background.jpg"
-    );
-
-    this.setState({
-      ...this.state,
-      canvasLayers: [canvasBaseLayer]
-    });
-  };
-
   // Render Functions
 
   public render = () => {
@@ -69,7 +55,19 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
-      return null;
+      return (
+        <div className={styles.loadImageContainer}>
+          <div className={styles.loadImageBackground}></div>
+          <div className={styles.loadImageMessage}>
+            クリック、タップして画像を読み込む
+          </div>
+          <input
+            type="file"
+            multiple={false}
+            onChange={this.handleOnChangeFile}
+          />
+        </div>
+      );
     }
 
     return (
@@ -95,13 +93,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
         </div>
 
         <div className={styles.inputs}>
-          <div>
-            <input
-              type="file"
-              multiple={false}
-              onChange={this.handleOnChangeFile}
-            />
-          </div>
           <div>
             <input
               type="range"
