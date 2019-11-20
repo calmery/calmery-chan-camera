@@ -19,6 +19,7 @@ interface ICanvasState {
   emphasisIndex: number;
   canvasLayers: ICanvasLayer[];
   exporting: boolean;
+  alreadySetEvents: boolean;
 }
 
 class Canvas extends React.Component<{}, ICanvasState> {
@@ -26,6 +27,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     super(props);
 
     this.state = {
+      alreadySetEvents: false,
       isDragging: false,
       isOpenLayerMenu: false,
       selectedLayerIndex: null,
@@ -43,6 +45,34 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   private container: React.RefObject<HTMLDivElement> = React.createRef();
   private canvas: React.RefObject<SVGSVGElement> = React.createRef();
+
+  public componentDidUpdate = () => {
+    // React の onMouseMove や onTouchMove には passive オプションを渡すことができない
+    if (!this.state.alreadySetEvents && this.canvas.current !== null) {
+      this.canvas.current.addEventListener(
+        "mousemove",
+        this.handleOnMouseMove,
+        { passive: false }
+      );
+      this.canvas.current.addEventListener(
+        "touchmove",
+        this.handleOnMouseMove,
+        { passive: false }
+      );
+      this.setState({ alreadySetEvents: true });
+    }
+  };
+
+  public componentWillUnmount = () => {
+    this.canvas.current!.removeEventListener(
+      "mousemove",
+      this.handleOnMouseMove
+    );
+    this.canvas.current!.removeEventListener(
+      "touchmove",
+      this.handleOnMouseMove
+    );
+  };
 
   // Render Functions
 
@@ -82,8 +112,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
             baseProfile="full"
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
-            onMouseMove={this.handleOnMouseMove}
-            onTouchMove={this.handleOnMouseMove}
           >
             {canvasLayers.map(this.renderCanvasLayer)}
           </svg>
@@ -304,11 +332,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
-  private handleOnMouseMove = (
-    event:
-      | React.MouseEvent<SVGSVGElement, MouseEvent>
-      | React.TouchEvent<SVGSVGElement>
-  ) => {
+  private handleOnMouseMove = (event: MouseEvent | TouchEvent) => {
     const {
       selectedLayerIndex,
       isDragging,
@@ -335,12 +359,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
     let clientX;
     let clientY;
 
-    if (Object.hasOwnProperty.call(event, "touches")) {
-      clientX = (event as React.TouchEvent<SVGSVGElement>).touches[0].clientX;
-      clientY = (event as React.TouchEvent<SVGSVGElement>).touches[0].clientY;
-    } else {
-      clientX = (event as React.MouseEvent<SVGSVGElement, MouseEvent>).clientX;
-      clientY = (event as React.MouseEvent<SVGSVGElement, MouseEvent>).clientY;
+    // TODO: mousemove と touchmove を同じメソッドで扱っているのが良くない
+    try {
+      clientX = (event as TouchEvent).touches[0].clientX;
+      clientY = (event as TouchEvent).touches[0].clientY;
+    } catch (_) {
+      clientX = (event as MouseEvent).clientX;
+      clientY = (event as MouseEvent).clientY;
     }
 
     canvasLayers[selectedLayerIndex!] = {
