@@ -6,6 +6,7 @@ import styles from "./Canvas.scss";
 import CanvasLayerSelector from "../CanvasLayerSelector";
 import CanvasLayerList from "../../components/CanvasLayerList";
 import Modal from "../../components/Modal/Modal";
+import blueimpLoadImage from "blueimp-load-image";
 
 interface ICanvasState {
   isDragging: boolean;
@@ -65,6 +66,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
             type="file"
             multiple={false}
             onChange={this.handleOnChangeFile}
+            accept="image/*"
           />
         </div>
       );
@@ -170,11 +172,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     const file = files[0];
-    const reader = new FileReader();
 
-    reader.addEventListener(
-      "load",
-      async () => {
+    blueimpLoadImage(
+      file,
+      async canvas => {
         let baseLayerIndex: number | null = null;
         const canvasLayers = this.state.canvasLayers;
 
@@ -186,7 +187,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
         const nextBaseLayer = await this.convertUrlToLayer(
           CanvasLayerKind.base,
-          reader.result as string
+          (canvas as HTMLCanvasElement).toDataURL()
         );
 
         if (baseLayerIndex !== null) {
@@ -197,10 +198,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
         this.setState({ canvasLayers });
       },
-      false
+      { canvas: true, orientation: true }
     );
-
-    reader.readAsDataURL(file);
   };
 
   private handleOnChangeScale = (
@@ -422,7 +421,19 @@ class Canvas extends React.Component<{}, ICanvasState> {
       const image = new Image();
 
       image.onload = () => {
-        const { width, height } = image;
+        let { width, height } = image;
+
+        // あまりにも画像サイズが大きいと出力の段階で落ちるので 1500px に落とす
+        if (width > 1500 || height > 1500) {
+          if (width > height) {
+            height = 1500 / (width / height);
+            width = 1500;
+          } else {
+            width = 1500 / (height / width);
+            height = 1500;
+          }
+        }
+
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
@@ -433,7 +444,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
           return reject();
         }
 
-        context.drawImage(image, 0, 0);
+        context.drawImage(image, 0, 0, width, height);
 
         resolve({
           kind,
