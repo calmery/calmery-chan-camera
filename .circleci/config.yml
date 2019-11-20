@@ -1,0 +1,81 @@
+version: 2
+
+jobs:
+  setup:
+    docker:
+      - image: circleci/node:12.13.0
+
+    working_directory: ~/repository
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - node_modules-dependencies-{{ checksum "package.json" }}
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: node_modules-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/
+          paths: ./*
+
+  lint:
+    docker:
+      - image: circleci/node:12.13.0
+
+    working_directory: ~/repository
+
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - run: npm run prettify
+
+  test:
+    docker:
+      - image: circleci/node:12.13.0
+
+    working_directory: ~/repository
+
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - run: npm test
+
+  build:
+    docker:
+      - image: circleci/node:12.13.0
+
+    working_directory: ~/repository
+
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - run: npm run build
+
+workflows:
+  version: 2
+
+  lint-test-and-build:
+    jobs:
+      - setup
+
+      - lint:
+          requires:
+            - setup
+
+      - test:
+          requires:
+            - setup
+
+      - build:
+          requires:
+            - setup
