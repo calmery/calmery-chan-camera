@@ -5,7 +5,7 @@ import styles from "./Top.scss";
 const Top: React.FC = () => (
   <React.Fragment>
     <div className={styles.logo}>
-      <img src="logo.png" />
+      <img src="images/logo.png" />
     </div>
     <Canvas />
   </React.Fragment>
