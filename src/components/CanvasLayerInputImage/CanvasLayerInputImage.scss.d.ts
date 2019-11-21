@@ -3,6 +3,7 @@
 interface CssExports {
   background: string;
   container: string;
+  input: string;
   message: string;
 }
 export const cssExports: CssExports;

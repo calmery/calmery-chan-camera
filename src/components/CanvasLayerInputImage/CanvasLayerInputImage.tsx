@@ -15,6 +15,7 @@ const CanvasLayerInputImage: React.FC<ICanvasLayerInputImageProps> = ({
     <input
       type="file"
       multiple={false}
+      className={styles.input}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
 
