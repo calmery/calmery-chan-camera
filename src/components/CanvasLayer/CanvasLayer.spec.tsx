@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import CanvasLayer from "./CanvasLayer";
+import { CanvasLayer } from "./CanvasLayer";
 import { CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
 
 it("Renders without crashing", () => {

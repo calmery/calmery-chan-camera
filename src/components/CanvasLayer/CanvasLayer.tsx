@@ -35,4 +35,4 @@ const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
   );
 };
 
-export default CanvasLayer;
+export { CanvasLayer };

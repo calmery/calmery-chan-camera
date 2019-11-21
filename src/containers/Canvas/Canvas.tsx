@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { ICanvasLayer, CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
-import CanvasLayer from "../../components/CanvasLayer";
+import { CanvasLayer } from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
 import { CanvasLayerList } from "../../components/CanvasLayerList";
 import Modal from "../../components/Modal/Modal";
