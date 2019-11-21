@@ -17,7 +17,6 @@ const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
   onSelect,
   onRemove
 }) => {
-  console.log(selectedIndex);
   return (
     <div className={styles.container}>
       {canvasLayers.map((canvasLayer, currentIndex) =>
