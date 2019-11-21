@@ -7,6 +7,7 @@ import styles from "./Top.scss";
 const Top: React.FC = () => (
   <div className={styles.container}>
     <Header />
+    <div className={styles.contents}>Hello World</div>
     <Footer />
   </div>
 );

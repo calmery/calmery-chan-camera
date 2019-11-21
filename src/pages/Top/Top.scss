@@ -4,3 +4,11 @@
   margin: $Spacing-L;
   box-sizing: border-box;
 }
+
+.contents {
+  margin: 24px 0;
+
+  font-size: $FontSize-S;
+  line-height: $LineHeight-S;
+  font-family: SmartFontUI, Quicksand, sans-serif;
+}
