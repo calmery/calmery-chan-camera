@@ -75,14 +75,16 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   public componentWillUnmount = () => {
-    this.canvas.current!.removeEventListener(
-      "mousemove",
-      this.handleOnMouseMove
-    );
-    this.canvas.current!.removeEventListener(
-      "touchmove",
-      this.handleOnMouseMove
-    );
+    if (this.canvas.current) {
+      this.canvas.current.removeEventListener(
+        "mousemove",
+        this.handleOnMouseMove
+      );
+      this.canvas.current.removeEventListener(
+        "touchmove",
+        this.handleOnMouseMove
+      );
+    }
   };
 
   // Render Functions
