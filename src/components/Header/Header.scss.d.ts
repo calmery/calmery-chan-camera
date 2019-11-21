@@ -2,6 +2,8 @@
 // Please do not change this file!
 interface CssExports {
   container: string;
+  logo: string;
+  menu: string;
 }
 export const cssExports: CssExports;
 export default cssExports;

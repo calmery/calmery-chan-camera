@@ -1,8 +1,5 @@
-.logo {
-  height: 24px;
-  margin: 24px;
+@import "../../constants";
 
-  img {
-    height: 100%;
-  }
+.container {
+  margin: $Spacing-L;
 }
