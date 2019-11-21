@@ -30,7 +30,7 @@
 .children {
   width: 100%;
   height: 100%;
-  overflow-x: scroll;
+  overflow-y: scroll;
   background: $Color-White-Transparent;
   backdrop-filter: blur($Blur);
   box-sizing: border-box;
