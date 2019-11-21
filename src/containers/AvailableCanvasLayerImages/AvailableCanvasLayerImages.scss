@@ -1,0 +1,49 @@
+@import "../../constants";
+
+.container {
+  width: 100%;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  img {
+    width: 100%;
+    cursor: pointer;
+  }
+}
+
+.errorContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  top: 0;
+  left: 0;
+  position: absolute;
+
+  img {
+    width: 240px;
+    margin-bottom: $Spacing-S;
+  }
+
+  .errorMessage {
+    margin-bottom: 4px;
+  }
+
+  .reloadButton {
+    @include animation;
+
+    padding: $Spacing-M;
+    background: $Color-White;
+    border-radius: $Border-Radius;
+    box-shadow: $Box-Shadow;
+    margin-top: $Spacing-M;
+    cursor: pointer;
+
+    &:hover {
+      @include scale;
+    }
+  }
+}

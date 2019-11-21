@@ -4,6 +4,7 @@ interface CssExports {
   container: string;
   errorContainer: string;
   errorMessage: string;
+  reloadButton: string;
 }
 export const cssExports: CssExports;
 export default cssExports;

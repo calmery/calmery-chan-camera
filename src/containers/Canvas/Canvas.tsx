@@ -3,10 +3,10 @@ import { connect } from "react-redux";
 import { ICanvasLayer, CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
 import CanvasLayer from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
-import CanvasLayerSelector from "../CanvasLayerSelector";
 import { CanvasLayerList } from "../../components/CanvasLayerList";
 import Modal from "../../components/Modal/Modal";
 import blueimpLoadImage from "blueimp-load-image";
+import { AvailableCanvasLayerImages } from "../AvailableCanvasLayerImages";
 
 interface ICanvasState {
   isDragging: boolean;
@@ -196,7 +196,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
           >
             û
           </div>
-          <CanvasLayerSelector onSelect={this.handleOnClickAddLayer} />
+          <AvailableCanvasLayerImages onSelect={this.handleOnClickAddLayer} />
         </Modal>
       </React.Fragment>
     );
