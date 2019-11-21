@@ -46,6 +46,17 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private container: React.RefObject<HTMLDivElement> = React.createRef();
   private canvas: React.RefObject<SVGSVGElement> = React.createRef();
 
+  public componentDidMount = async () => {
+    this.setState({
+      canvasLayers: [
+        await this.convertUrlToLayer(
+          CanvasLayerKind.base,
+          "images/background.jpg"
+        )
+      ]
+    });
+  };
+
   public componentDidUpdate = () => {
     // React の onMouseMove や onTouchMove には passive オプションを渡すことができない
     if (!this.state.alreadySetEvents && this.canvas.current !== null) {
@@ -151,6 +162,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
         </div>
 
         <CanvasLayerList
+          onClickRemoveButton={(emphasisIndex: number) => {
+            this.setState({
+              canvasLayers: canvasLayers.filter(
+                (_, index) => emphasisIndex !== index
+              )
+            });
+          }}
           emphasisIndex={emphasisIndex}
           canvasLayers={canvasLayers}
           onClick={(emphasisIndex: number) => {

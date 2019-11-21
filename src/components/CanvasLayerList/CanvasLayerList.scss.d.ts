@@ -5,7 +5,9 @@ interface CssExports {
   canvasLayer: string;
   canvasLayerContainer: string;
   container: string;
+  displayRemoveButton: string;
   emphasis: string;
+  removeButton: string;
 }
 export const cssExports: CssExports;
 export default cssExports;

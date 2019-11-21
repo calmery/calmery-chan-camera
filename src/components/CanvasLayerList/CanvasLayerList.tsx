@@ -7,12 +7,14 @@ interface ICanvasLayerListProps {
   canvasLayers: ICanvasLayer[];
   emphasisIndex: number;
   onClick: (emphasisIndex: number) => void;
+  onClickRemoveButton: (emphasisIndex: number) => void;
 }
 
 const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
   canvasLayers,
   emphasisIndex,
-  onClick
+  onClick,
+  onClickRemoveButton
 }) => {
   return (
     <div className={styles.container}>
@@ -24,7 +26,7 @@ const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
         }
 
         return (
-          <div className={styles.canvasLayerContainer}>
+          <div className={styles.canvasLayerContainer} key={currentIndex}>
             <div
               className={classnames(styles.canvasLayer, {
                 [styles.emphasis]: currentIndex === emphasisIndex
@@ -32,6 +34,19 @@ const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
               key={currentIndex}
               onClick={() => onClick(currentIndex)}
             >
+              <div
+                className={classnames(styles.removeButton, {
+                  [styles.displayRemoveButton]: currentIndex === emphasisIndex
+                })}
+                onClick={event => {
+                  event.stopPropagation();
+                  if (currentIndex === emphasisIndex) {
+                    onClickRemoveButton(currentIndex);
+                  }
+                }}
+              >
+                ò
+              </div>
               <img src={base64} />
             </div>
           </div>
