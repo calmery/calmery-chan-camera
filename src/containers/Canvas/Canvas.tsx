@@ -4,7 +4,7 @@ import { ICanvasLayer, CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
 import { CanvasLayer } from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
 import { CanvasLayerList } from "../../components/CanvasLayerList";
-import Modal from "../../components/Modal/Modal";
+import { Modal } from "../Modal";
 import blueimpLoadImage from "blueimp-load-image";
 import { AvailableCanvasLayerImages } from "../AvailableCanvasLayerImages";
 

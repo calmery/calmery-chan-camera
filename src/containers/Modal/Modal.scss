@@ -1,3 +1,5 @@
+@import "../../constants";
+
 .hidden {
   display: none !important;
 }
@@ -13,15 +15,14 @@
   align-items: center;
 
   * {
-    animation-duration: 0.4s;
-    animation-fill-mode: forwards;
+    @include animation;
   }
 }
 
 .background {
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.32);
+  background: $Color-Black-Transparent;
   position: fixed;
   display: none;
 }
@@ -29,11 +30,11 @@
 .children {
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.84);
-  backdrop-filter: blur(8px);
+  overflow-x: scroll;
+  background: $Color-White-Transparent;
+  backdrop-filter: blur($Blur);
   box-sizing: border-box;
-  overflow: scroll;
-  padding: 48px;
+  padding: $Spacing-L;
   position: relative;
 
   &::-webkit-scrollbar {
@@ -49,9 +50,9 @@
   .children {
     width: 600px !important;
     height: 600px !important;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 1);
+    border-radius: $Border-Radius;
     backdrop-filter: none;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    background: $Color-White;
+    box-shadow: $Box-Shadow;
   }
 }

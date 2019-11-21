@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import classnames from "classnames";
+import { ANIMATION_DURATION } from "../../constants";
 import styles from "./Modal.scss";
 
 interface ModalProps {
@@ -9,12 +10,18 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ children, hidden }) => {
-  const [isAnimationCompleted, setIsAnimationCompleted] = useState(false);
+  const firstUpdate = useRef(true);
+  const [isAnimationCompleted, setIsAnimationCompleted] = useState(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+
     const animationTimer = setTimeout(
       () => setIsAnimationCompleted(!isAnimationCompleted),
-      400
+      ANIMATION_DURATION
     );
     return () => clearTimeout(animationTimer);
   }, [hidden]);
@@ -43,4 +50,4 @@ const Modal: React.FC<ModalProps> = ({ children, hidden }) => {
   );
 };
 
-export default Modal;
+export { Modal };
