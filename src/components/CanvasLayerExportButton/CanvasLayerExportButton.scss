@@ -1,0 +1,23 @@
+@import "../../constants";
+
+.container {
+  @include animation;
+
+  width: 100%;
+  background: $Color-White;
+  font-size: $FontSize-S;
+  color: $Color-Black;
+  border-radius: $Border-Radius;
+  box-shadow: $Box-Shadow;
+  padding: $Spacing-L;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: SmartFontUI, Quicksand, sans-serif;
+  opacity: $Opacity;
+
+  &:hover {
+    @include scale;
+
+    opacity: 1;
+  }
+}

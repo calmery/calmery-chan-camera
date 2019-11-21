@@ -7,6 +7,7 @@ import { CanvasLayerList } from "../../components/CanvasLayerList";
 import { Modal } from "../Modal";
 import blueimpLoadImage from "blueimp-load-image";
 import { AvailableCanvasLayerImages } from "../AvailableCanvasLayerImages";
+import { CanvasLayerExportButton } from "../../components/CanvasLayerExportButton";
 
 interface ICanvasState {
   isDragging: boolean;
@@ -181,9 +182,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
           }}
         />
 
-        <div className={styles.exportButton} onClick={this.handleOnClickExport}>
-          <div>{this.state.exporting ? "変換中..." : "画像を保存する！"}</div>
-        </div>
+        <CanvasLayerExportButton
+          isExporting={this.state.exporting}
+          onClick={this.handleOnClickExport}
+        />
 
         <div className={styles.margin}></div>
 
