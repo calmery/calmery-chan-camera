@@ -1,5 +1,6 @@
 // Spaces
 
+$Spacing-XS: 4px;
 $Spacing-S: 8px;
 $Spacing-M: 16px;
 $Spacing-L: 24px;
@@ -8,7 +9,7 @@ $Spacing-L: 24px;
 
 $Color-White: rgba(250, 250, 250, 1);
 $Color-Black: rgba(60, 60, 60, 1);
-$Color-Pink: #FF7DBB;
+$Color-Pink: #ff7dbb;
 
 // Borders
 
@@ -16,7 +17,7 @@ $Border-Radius: 8px;
 
 // Box Shadows
 
-$Box-Shadow: 0 6px 12px rgba(0, 0, 0, .1);
+$Box-Shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 
 // Fonts
 
@@ -30,11 +31,15 @@ $LineHeight-L: 22px;
 
 // Opacity
 
-$Opacity: .42;
+$Opacity: 0.42;
 
 // Animation
 
 @mixin animation {
-  transition: ease .4s;
+  transition: ease 0.4s;
   animation-fill-mode: forwards;
+}
+
+@mixin scale {
+  transform: scale(1.06);
 }

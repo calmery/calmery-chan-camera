@@ -1,45 +1,36 @@
 import * as React from "react";
 import { ICanvasLayer } from "../../types/CanvasLayer";
 
-interface ICanvasLayerProps extends ICanvasLayer {
-  onMouseDown: (
-    event:
-      | React.MouseEvent<SVGImageElement, MouseEvent>
-      | React.TouchEvent<SVGImageElement>
-  ) => void;
-  onMouseUp: (
-    event:
-      | React.MouseEvent<SVGImageElement, MouseEvent>
-      | React.TouchEvent<SVGImageElement>
-  ) => void;
-  onClick: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
+interface ICanvasLayerProps {
+  canvasLayer: ICanvasLayer;
+  onTouchStart: (event: React.TouchEvent<SVGImageElement>) => void;
+  onTouchEnd: (event: React.TouchEvent<SVGImageElement>) => void;
+  onMouseDown: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
+  onMouseUp: (event: React.MouseEvent<SVGImageElement, MouseEvent>) => void;
 }
 
 const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
   const {
-    base64,
-    width,
-    height,
+    canvasLayer,
     onMouseDown,
     onMouseUp,
-    onClick,
-    x,
-    y,
-    effects
+    onTouchStart,
+    onTouchEnd
   } = props;
   return (
     <image
-      xlinkHref={base64}
-      width={width}
-      height={height}
-      transform={`translate(${x}, ${y}) scale(${effects.scale}, ${
-        effects.scale
-      }) rotate(${effects.rotate} ${width / 2} ${height / 2})`}
+      xlinkHref={canvasLayer.base64}
+      width={canvasLayer.width}
+      height={canvasLayer.height}
+      transform={`translate(${canvasLayer.x}, ${canvasLayer.y}) scale(${
+        canvasLayer.effects.scale
+      }, ${canvasLayer.effects.scale}) rotate(${
+        canvasLayer.effects.rotate
+      } ${canvasLayer.width / 2} ${canvasLayer.height / 2})`}
       onMouseDown={onMouseDown}
-      onTouchStart={onMouseDown}
-      onTouchEnd={onMouseUp}
       onMouseUp={onMouseUp}
-      onClick={onClick}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     />
   );
 };

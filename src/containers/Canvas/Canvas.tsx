@@ -1,10 +1,10 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { ICanvasLayer, CanvasLayerKind } from "../../types/CanvasLayer";
+import { ICanvasLayer, CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
 import CanvasLayer from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
 import CanvasLayerSelector from "../CanvasLayerSelector";
-import CanvasLayerList from "../../components/CanvasLayerList";
+import { CanvasLayerList } from "../../components/CanvasLayerList";
 import Modal from "../../components/Modal/Modal";
 import blueimpLoadImage from "blueimp-load-image";
 
@@ -50,7 +50,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     this.setState({
       canvasLayers: [
         await this.convertUrlToLayer(
-          CanvasLayerKind.base,
+          CANVAS_LAYER_KIND.BASE,
           "images/background.jpg"
         )
       ]
@@ -164,16 +164,16 @@ class Canvas extends React.Component<{}, ICanvasState> {
         </div>
 
         <CanvasLayerList
-          onClickRemoveButton={(emphasisIndex: number) => {
+          onRemove={(emphasisIndex: number) => {
             this.setState({
               canvasLayers: canvasLayers.filter(
                 (_, index) => emphasisIndex !== index
               )
             });
           }}
-          emphasisIndex={emphasisIndex}
+          selectedIndex={emphasisIndex}
           canvasLayers={canvasLayers}
-          onClick={(emphasisIndex: number) => {
+          onSelect={(emphasisIndex: number) => {
             this.setState({
               emphasisIndex,
               isOpenLayerMenu: emphasisIndex === -1
@@ -206,10 +206,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
     return (
       <CanvasLayer
         key={index}
-        {...canvasLayer}
+        canvasLayer={canvasLayer}
         onMouseDown={event => this.handleOnMouseDown(event, index)}
         onMouseUp={event => this.handleOnMouseUp(event, index)}
-        onClick={event => this.handleOnClick(event, index)}
+        onTouchStart={event => this.handleOnMouseDown(event, index)}
+        onTouchEnd={event => this.handleOnMouseUp(event, index)}
       />
     );
   };
@@ -232,13 +233,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
         const canvasLayers = this.state.canvasLayers;
 
         canvasLayers.forEach((canvasLayer, index) => {
-          if (canvasLayer.kind === CanvasLayerKind.base) {
+          if (canvasLayer.kind === CANVAS_LAYER_KIND.BASE) {
             baseLayerIndex = index;
           }
         });
 
         const nextBaseLayer = await this.convertUrlToLayer(
-          CanvasLayerKind.base,
+          CANVAS_LAYER_KIND.BASE,
           (canvas as HTMLCanvasElement).toDataURL()
         );
 
@@ -401,7 +402,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     this.setState({
       canvasLayers: [
         ...this.state.canvasLayers,
-        await this.convertUrlToLayer(CanvasLayerKind.normal, url)
+        await this.convertUrlToLayer(CANVAS_LAYER_KIND.NORMAL, url)
       ],
       emphasisIndex: this.state.canvasLayers.length,
       isOpenLayerMenu: false
@@ -418,7 +419,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const canvasLayer = canvasLayers[index];
 
     if (
-      canvasLayer.kind === CanvasLayerKind.base ||
+      canvasLayer.kind === CANVAS_LAYER_KIND.BASE ||
       this.canvas.current === null
     ) {
       return;
@@ -459,7 +460,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const { canvasLayers } = this.state;
     const canvasLayer = canvasLayers[index];
 
-    if (canvasLayer.kind === CanvasLayerKind.base) {
+    if (canvasLayer.kind === CANVAS_LAYER_KIND.BASE) {
       return;
     }
 
@@ -476,7 +477,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Helper Functions
 
   private convertUrlToLayer = (
-    kind: CanvasLayerKind,
+    kind: CANVAS_LAYER_KIND,
     imageUrl: string
   ): Promise<ICanvasLayer> => {
     return new Promise((resolve, reject) => {
@@ -528,7 +529,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   private findBaseLayer = (): ICanvasLayer | undefined => {
     const { canvasLayers } = this.state;
-    return canvasLayers.find(({ kind }) => kind === CanvasLayerKind.base);
+    return canvasLayers.find(({ kind }) => kind === CANVAS_LAYER_KIND.BASE);
   };
 
   private convertDataUrlToBlob = (dataUrl: string) => {

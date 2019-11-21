@@ -1,77 +1,42 @@
+@import "../../constants";
+
 .container {
   display: flex;
-  overflow: scroll;
+  overflow-x: scroll;
   -webkit-overflow-scrolling: touch;
 }
 
 .canvasLayerContainer {
-  padding: 24px 4px;
-  position: relative;
+  padding: $Spacing-L $Spacing-XS;
+}
+
+.canvasLayer {
+  @include animation;
+
+  width: 80px;
+  height: 70px;
+  background: $Color-White;
+  border-radius: $Border-Radius;
+  box-shadow: $Box-Shadow;
+  margin-left: $Spacing-S;
+  opacity: $Opacity;
+  cursor: pointer;
 
   &:first-child {
-    padding-left: 24px;
+    margin-left: 0px;
   }
 
-  &:last-child {
-    padding-right: 24px;
+  &.addButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $FontSize-L;
+    color: $Color-Black;
+    font-family: CONDENSEicon;
   }
 
-  .canvasLayer {
-    width: 80px;
-    height: 70px;
-    background: rgba(255, 255, 255, 1);
-    border-radius: 8px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, .1);
-    cursor: pointer;
-    margin-left: 8px;
-    opacity: .42;
-    transition: ease .4s;
-
-    .removeButton {
-      opacity: 0;
-      height: 24px;
-      right: -12px;
-      position: absolute;
-      font-family: CONDENSEicon;
-      background: #FFF;
-      width: 24px;
-      top: -12px;
-      text-align: center;
-      line-height: 26px;
-      border-radius: 100%;
-      font-size: 12px;
-      box-shadow: 0 6px 12px rgba(0,0,0,.1);
-      z-index: 100;
-      transition: ease .4s;
-      color: #fb5986;
-  
-      &.displayRemoveButton {
-        opacity: 1;
-      }
-    }
-
-    &:first-child {
-      margin-left: 0px;
-    }
-
-    &.emphasis {
-      opacity: 1;
-      transform: scale(1.06);
-    }
-
-    &.addButton {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      color: rgba(60, 60, 60, 1);
-      font-family: CONDENSEicon;
-      transition: ease .4s;
-    }
-
-    img {
-      height: 100%;
-      vertical-align: bottom;
-    }
+  &.emphasis {
+    @include scale;
+    opacity: 1;
   }
 }

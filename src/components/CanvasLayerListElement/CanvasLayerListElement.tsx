@@ -1,0 +1,43 @@
+import * as React from "react";
+import classnames from "classnames";
+import { ICanvasLayer } from "../../types/CanvasLayer";
+import styles from "./CanvasLayerListElement.scss";
+
+interface ICanvasLayerListElementProps {
+  active: boolean;
+  canvasLayer: ICanvasLayer;
+  onSelect: () => void;
+  onRemove: () => void;
+}
+
+const CanvasLayerListElement: React.FC<ICanvasLayerListElementProps> = ({
+  active,
+  canvasLayer: { base64 },
+  onSelect,
+  onRemove
+}) => {
+  return (
+    <div className={styles.container}>
+      <div
+        className={classnames(styles.canvasLayer, {
+          [styles.emphasis]: active
+        })}
+        onClick={onSelect}
+      >
+        <div
+          className={classnames(styles.removeButton, {
+            [styles.display]: active
+          })}
+          onClick={onRemove}
+        >
+          ò
+        </div>
+        <div className={styles.imageContainer}>
+          <img src={base64} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export { CanvasLayerListElement };
