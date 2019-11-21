@@ -2,18 +2,14 @@
 // Please do not change this file!
 interface CssExports {
   canvasLayerList: string;
-  closeLayerMenuButton: string;
+  closeAvailableCanvasLayerImagesButton: string;
   condense: string;
   container: string;
   exportButton: string;
-  exportedBase64: string;
   exporting: string;
   fixedHeight: string;
   inputRange: string;
   inputs: string;
-  loadImageBackground: string;
-  loadImageContainer: string;
-  loadImageMessage: string;
   margin: string;
   svg: string;
 }

@@ -5,21 +5,27 @@ import { CanvasLayer } from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
 import { CanvasLayerList } from "../../components/CanvasLayerList";
 import { Modal } from "../Modal";
-import blueimpLoadImage from "blueimp-load-image";
 import { AvailableCanvasLayerImages } from "../AvailableCanvasLayerImages";
 import { CanvasLayerExportButton } from "../../components/CanvasLayerExportButton";
+import { CanvasLayerInputImage } from "../../components/CanvasLayerInputImage";
+import {
+  download,
+  convertSvgToDataUrl,
+  convertUrlToLayer
+} from "../../helpers";
 
 interface ICanvasState {
-  isDragging: boolean;
-  isOpenLayerMenu: boolean;
-  selectedLayerIndex: number | null;
+  isDraggingCanvasLayer: boolean;
+  isOpenAvailableCanvasLayerImages: boolean;
+  selectedCanvasLayerIndex: number | null;
   offsetMousePosition: {
     x: number;
     y: number;
   };
-  emphasisIndex: number;
+  selectedIndex: number;
   canvasLayers: ICanvasLayer[];
-  exporting: boolean;
+  isExportError: boolean;
+  isExporting: boolean;
   alreadySetEvents: boolean;
 }
 
@@ -29,16 +35,17 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     this.state = {
       alreadySetEvents: false,
-      isDragging: false,
-      isOpenLayerMenu: false,
-      selectedLayerIndex: null,
-      emphasisIndex: -1,
+      isDraggingCanvasLayer: false,
+      isOpenAvailableCanvasLayerImages: false,
+      selectedCanvasLayerIndex: null,
+      selectedIndex: -1,
+      isExportError: false,
       offsetMousePosition: {
         x: 0,
         y: 0
       },
       canvasLayers: [],
-      exporting: false
+      isExporting: false
     };
   }
 
@@ -50,10 +57,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   public componentDidMount = async () => {
     this.setState({
       canvasLayers: [
-        await this.convertUrlToLayer(
-          CANVAS_LAYER_KIND.BASE,
-          "images/background.jpg"
-        )
+        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "images/background.jpg")
       ]
     });
   };
@@ -91,24 +95,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Render Functions
 
   public render = () => {
-    const { canvasLayers, isOpenLayerMenu, emphasisIndex } = this.state;
+    const {
+      canvasLayers,
+      isOpenAvailableCanvasLayerImages,
+      selectedIndex
+    } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
-      return (
-        <div className={styles.loadImageContainer}>
-          <div className={styles.loadImageBackground}></div>
-          <div className={styles.loadImageMessage}>
-            クリック、タップして画像を読み込む
-          </div>
-          <input
-            type="file"
-            multiple={false}
-            onChange={this.handleOnChangeFile}
-            accept="image/*"
-          />
-        </div>
-      );
+      return <CanvasLayerInputImage onChange={this.handleOnChangeFile} />;
     }
 
     return (
@@ -131,78 +126,67 @@ class Canvas extends React.Component<{}, ICanvasState> {
           </svg>
         </div>
 
-        <div className={styles.inputs}>
-          <div>
-            <div className={styles.condense}>õ</div>
-            <div className={styles.fixedHeight}>
-              <input
-                className={styles.inputRange}
-                type="range"
-                min="1"
-                max="5"
-                defaultValue="1"
-                onChange={this.handleOnChangeScale}
-              />
-            </div>
-          </div>
-          <div>
-            <div className={styles.condense}>|</div>
-            <div className={styles.fixedHeight}>
-              <input
-                className={styles.inputRange}
-                type="range"
-                min="0"
-                max="359"
-                defaultValue="0"
-                onChange={this.handleOnChangeRotate}
-                onTouchMove={event => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        {this.renderInputs()}
 
         <CanvasLayerList
-          onRemove={(emphasisIndex: number) => {
-            this.setState({
-              canvasLayers: canvasLayers.filter(
-                (_, index) => emphasisIndex !== index
-              )
-            });
-          }}
-          selectedIndex={emphasisIndex}
           canvasLayers={canvasLayers}
-          onSelect={(emphasisIndex: number) => {
-            this.setState({
-              emphasisIndex,
-              isOpenLayerMenu: emphasisIndex === -1
-            });
-          }}
+          selectedIndex={selectedIndex}
+          onSelect={this.handleOnSelectCanvasLayer}
+          onRemove={this.handleOnRemoveCanvasLayer}
         />
 
         <CanvasLayerExportButton
-          isExporting={this.state.exporting}
-          onClick={this.handleOnClickExport}
+          isExporting={this.state.isExporting}
+          onClick={this.handleOnExport}
         />
 
-        <div className={styles.margin}></div>
-
-        <Modal hidden={!isOpenLayerMenu}>
+        <Modal hidden={!isOpenAvailableCanvasLayerImages}>
           <div
-            className={styles.closeLayerMenuButton}
-            onClick={() =>
-              this.setState({ isOpenLayerMenu: false, emphasisIndex: -2 })
-            }
+            className={styles.closeAvailableCanvasLayerImagesButton}
+            onClick={this.handleOnCloseAvailableCanvasLayerImages}
           >
             û
           </div>
-          <AvailableCanvasLayerImages onSelect={this.handleOnClickAddLayer} />
+          <AvailableCanvasLayerImages onSelect={this.handleOnAddCanvasLayer} />
         </Modal>
       </React.Fragment>
     );
   };
+
+  private renderInputs = () => (
+    <div className={styles.inputs}>
+      <div>
+        <div className={styles.condense}>õ</div>
+        <div className={styles.fixedHeight}>
+          <input
+            className={styles.inputRange}
+            type="range"
+            min="1"
+            max="5"
+            defaultValue="1"
+            onChange={this.handleOnChangeScale}
+          />
+        </div>
+      </div>
+      <div>
+        <div className={styles.condense}>|</div>
+        <div className={styles.fixedHeight}>
+          <input
+            className={styles.inputRange}
+            type="range"
+            min="0"
+            max="359"
+            defaultValue="0"
+            onChange={this.handleOnChangeRotate}
+            onTouchMove={event => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   private renderCanvasLayer = (canvasLayer: ICanvasLayer, index: number) => {
     return (
@@ -219,57 +203,19 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   // Event Handlers
 
-  private handleOnChangeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-
-    if (files === null) {
-      return;
-    }
-
-    const file = files[0];
-
-    blueimpLoadImage(
-      file,
-      async canvas => {
-        let baseLayerIndex: number | null = null;
-        const canvasLayers = this.state.canvasLayers;
-
-        canvasLayers.forEach((canvasLayer, index) => {
-          if (canvasLayer.kind === CANVAS_LAYER_KIND.BASE) {
-            baseLayerIndex = index;
-          }
-        });
-
-        const nextBaseLayer = await this.convertUrlToLayer(
-          CANVAS_LAYER_KIND.BASE,
-          (canvas as HTMLCanvasElement).toDataURL()
-        );
-
-        if (baseLayerIndex !== null) {
-          canvasLayers[baseLayerIndex] = nextBaseLayer;
-        } else {
-          canvasLayers.push(nextBaseLayer);
-        }
-
-        this.setState({ canvasLayers });
-      },
-      { canvas: true, orientation: true }
-    );
-  };
-
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { canvasLayers, emphasisIndex } = this.state;
+    const { canvasLayers, selectedIndex } = this.state;
 
-    if (emphasisIndex < 0) {
+    if (selectedIndex < 0) {
       return;
     }
 
     const scale = parseInt(event.target.value, 10);
-    const canvasLayer = canvasLayers[emphasisIndex!];
+    const canvasLayer = canvasLayers[selectedIndex!];
 
-    canvasLayers[emphasisIndex!] = {
+    canvasLayers[selectedIndex!] = {
       ...canvasLayer,
       x:
         canvasLayer.x +
@@ -293,15 +239,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnChangeRotate = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { canvasLayers, emphasisIndex } = this.state;
+    const { canvasLayers, selectedIndex } = this.state;
 
-    if (emphasisIndex < 0) {
+    if (selectedIndex < 0) {
       return;
     }
 
-    const canvasLayer = canvasLayers[emphasisIndex!];
+    const canvasLayer = canvasLayers[selectedIndex!];
 
-    canvasLayers[emphasisIndex!] = {
+    canvasLayers[selectedIndex!] = {
       ...canvasLayer,
       effects: {
         ...canvasLayer.effects,
@@ -312,53 +258,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
     this.setState({ canvasLayers });
   };
 
-  private handleOnClickExport = () => {
-    this.setState(
-      {
-        exporting: true
-      },
-      () => {
-        if (this.container.current === null) {
-          return;
-        }
-
-        const svg = new Blob([this.container.current.innerHTML], {
-          type: "image/svg+xml"
-        });
-        const url = URL.createObjectURL(svg);
-        const image = new Image();
-
-        image.onload = () => {
-          const baseLayer = this.findBaseLayer()!;
-          const canvas = document.createElement("canvas");
-          canvas.width = baseLayer.width;
-          canvas.height = baseLayer.height;
-
-          const context = canvas.getContext("2d");
-
-          if (context === null) {
-            return;
-          }
-
-          context.drawImage(image, 0, 0, baseLayer.width, baseLayer.height);
-
-          const a = document.createElement("a");
-          a.href = canvas.toDataURL();
-          a.download = "calmery.png";
-          a.click();
-
-          this.setState({ exporting: false });
-        };
-
-        image.src = url;
-      }
-    );
-  };
-
   private handleOnMouseMove = (event: MouseEvent | TouchEvent) => {
     const {
-      selectedLayerIndex,
-      isDragging,
+      selectedCanvasLayerIndex,
+      isDraggingCanvasLayer,
       canvasLayers,
       offsetMousePosition
     } = this.state;
@@ -366,11 +269,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!isDragging) {
+    if (!isDraggingCanvasLayer) {
       return;
     }
 
-    const canvasLayer = canvasLayers[selectedLayerIndex!];
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex!];
 
     if (this.canvas.current === null) {
       return;
@@ -391,24 +294,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
       clientY = (event as MouseEvent).clientY;
     }
 
-    canvasLayers[selectedLayerIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex!] = {
       ...canvasLayer,
       x: Math.round(clientX * ratio - x) + offsetMousePosition.x,
       y: Math.round(clientY * ratio - y) + offsetMousePosition.y
     };
 
     this.setState({ canvasLayers });
-  };
-
-  private handleOnClickAddLayer = async (url: string) => {
-    this.setState({
-      canvasLayers: [
-        ...this.state.canvasLayers,
-        await this.convertUrlToLayer(CANVAS_LAYER_KIND.NORMAL, url)
-      ],
-      emphasisIndex: this.state.canvasLayers.length,
-      isOpenLayerMenu: false
-    });
   };
 
   private handleOnMouseDown = (
@@ -444,8 +336,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     this.setState({
-      isDragging: true,
-      selectedLayerIndex: index,
+      isDraggingCanvasLayer: true,
+      selectedCanvasLayerIndex: index,
       offsetMousePosition: {
         x: canvasLayer.x - Math.round(clientX * ratio - x),
         y: canvasLayer.y - Math.round(clientY * ratio - y)
@@ -466,95 +358,109 @@ class Canvas extends React.Component<{}, ICanvasState> {
       return;
     }
 
-    this.setState({ selectedLayerIndex: null, isDragging: false });
-  };
-
-  private handleOnClick = (
-    _: React.MouseEvent<SVGImageElement, MouseEvent>,
-    index: number
-  ) => {
-    this.setState({ selectedLayerIndex: index });
+    this.setState({
+      selectedCanvasLayerIndex: null,
+      isDraggingCanvasLayer: false
+    });
   };
 
   // Helper Functions
-
-  private convertUrlToLayer = (
-    kind: CANVAS_LAYER_KIND,
-    imageUrl: string
-  ): Promise<ICanvasLayer> => {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-
-      image.onload = () => {
-        let { width, height } = image;
-
-        // あまりにも画像サイズが大きいと出力の段階で落ちるので 1500px に落とす
-        if (width > 1500 || height > 1500) {
-          if (width > height) {
-            height = 1500 / (width / height);
-            width = 1500;
-          } else {
-            width = 1500 / (height / width);
-            height = 1500;
-          }
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
-        const context = canvas.getContext("2d");
-
-        if (context === null) {
-          return reject();
-        }
-
-        context.drawImage(image, 0, 0, width, height);
-
-        resolve({
-          kind,
-          base64: canvas.toDataURL("image/png"),
-          width,
-          height,
-          x: 0,
-          y: 0,
-          effects: {
-            scale: 1,
-            rotate: 0
-          }
-        });
-      };
-
-      image.src = imageUrl;
-    });
-  };
 
   private findBaseLayer = (): ICanvasLayer | undefined => {
     const { canvasLayers } = this.state;
     return canvasLayers.find(({ kind }) => kind === CANVAS_LAYER_KIND.BASE);
   };
 
-  private convertDataUrlToBlob = (dataUrl: string) => {
-    const type = dataUrl
-      .split(",")[0]
-      .split(":")[1]
-      .split(";")[0];
-    const decodedData = atob(dataUrl.split(",")[1]);
-    const buffer = new Uint8Array(decodedData.length);
-    for (let i = 0; i < decodedData.length; i++) {
-      buffer[i] = decodedData.charCodeAt(i);
-    }
-    return new Blob([buffer.buffer], { type });
-  };
-
   private getRatio = () => {
     const baseLayer = this.findBaseLayer();
 
-    if (!baseLayer) {
-      return 0;
+    if (baseLayer === undefined || this.canvas.current === null) {
+      return 1;
     }
 
-    return baseLayer.width / (window.innerWidth - 48);
+    return baseLayer.width / this.canvas.current.getBoundingClientRect().width;
+  };
+
+  // Events
+
+  private handleOnExport = () => {
+    this.setState({ isExporting: true }, async () => {
+      if (this.container.current === null) {
+        return;
+      }
+
+      try {
+        const { width, height } = this.findBaseLayer()!;
+        const dataUrl = await convertSvgToDataUrl(
+          this.container.current.innerHTML,
+          width,
+          height
+        );
+        download("calmery.png", dataUrl);
+        this.setState({ isExporting: false });
+      } catch (_) {
+        this.setState({ isExporting: false, isExportError: true });
+      }
+    });
+  };
+
+  private handleOnSelectCanvasLayer = (selectedIndex: number) => {
+    this.setState({
+      selectedIndex,
+      isOpenAvailableCanvasLayerImages: selectedIndex === -1
+    });
+  };
+
+  private handleOnRemoveCanvasLayer = (selectedIndex: number) => {
+    const { canvasLayers } = this.state;
+
+    this.setState({
+      canvasLayers: canvasLayers.filter((_, index) => selectedIndex !== index)
+    });
+  };
+
+  private handleOnChangeFile = async (dataUrl: string) => {
+    const { canvasLayers } = this.state;
+    let baseLayerIndex: number | null = null;
+
+    canvasLayers.forEach((canvasLayer, index) => {
+      if (canvasLayer.kind === CANVAS_LAYER_KIND.BASE) {
+        baseLayerIndex = index;
+      }
+    });
+
+    const nextBaseLayer = await convertUrlToLayer(
+      CANVAS_LAYER_KIND.BASE,
+      dataUrl
+    );
+
+    if (baseLayerIndex !== null) {
+      canvasLayers[baseLayerIndex] = nextBaseLayer;
+    } else {
+      canvasLayers.push(nextBaseLayer);
+    }
+
+    this.setState({ canvasLayers });
+  };
+
+  private handleOnAddCanvasLayer = async (url: string) => {
+    const { canvasLayers } = this.state;
+
+    this.setState({
+      canvasLayers: [
+        ...canvasLayers,
+        await convertUrlToLayer(CANVAS_LAYER_KIND.NORMAL, url)
+      ],
+      selectedIndex: canvasLayers.length,
+      isOpenAvailableCanvasLayerImages: false
+    });
+  };
+
+  private handleOnCloseAvailableCanvasLayerImages = () => {
+    this.setState({
+      isOpenAvailableCanvasLayerImages: false,
+      selectedIndex: -2
+    });
   };
 }
 
