@@ -43,8 +43,8 @@
       "type": "image/png"
     }
   ],
-  "name": "React Boilerplate",
-  "short_name": "React Boilerplate",
+  "name": "かるめりちゃんカメラ",
+  "short_name": "かるめりちゃんカメラ",
   "start_url": ".",
   "theme_color": "#000000"
 }
