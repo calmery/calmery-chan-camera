@@ -1,5 +1,18 @@
 import { CANVAS_LAYER_KIND, ICanvasLayer } from "./types/CanvasLayer";
 
+const convertDataUrlToBlob = (dataUrl: string) => {
+  const type = dataUrl
+    .split(",")[0]
+    .split(":")[1]
+    .split(";")[0];
+  const decodedData = atob(dataUrl.split(",")[1]);
+  const buffer = new Uint8Array(decodedData.length);
+  for (let i = 0; i < decodedData.length; i++) {
+    buffer[i] = decodedData.charCodeAt(i);
+  }
+  return new Blob([buffer.buffer], { type });
+};
+
 export const convertSvgToDataUrl = (
   svgText: string,
   width: number,
@@ -23,7 +36,8 @@ export const convertSvgToDataUrl = (
       }
 
       context.drawImage(image, 0, 0, width, height);
-      resolve(canvas.toDataURL("image/png"));
+      const blob = convertDataUrlToBlob(canvas.toDataURL("image/png"));
+      resolve(URL.createObjectURL(blob));
     };
 
     image.src = url;
