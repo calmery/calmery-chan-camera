@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@sentry/browser": "5.9.1",
     "animate.css": "3.7.2",
     "blueimp-load-image": "2.24.0",
     "classnames": "2.2.6",
