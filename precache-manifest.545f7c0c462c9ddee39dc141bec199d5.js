@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d7a68f72544ea544ab2b",
+    "revision": "e0405da564368a917473",
     "url": "9ab2bcd7f3da65a9ed21.css"
   },
   {
@@ -14,6 +14,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "f8775e9598cf6efccd3a49741df2fa6d",
     "url": "background.jpg"
+  },
+  {
+    "revision": "27105b34582f55e87f5a53f33aea3baf",
+    "url": "calmery.png"
   },
   {
     "revision": "bca97944c7333a0cb6d314f2be076074",
@@ -256,7 +260,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "images/logo.png"
   },
   {
-    "revision": "963291767a453b3a80e1499f2a8129cd",
+    "revision": "ea26b0680e3c98bafce620537dab0647",
     "url": "index.html"
   },
   {
@@ -264,12 +268,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "information.svg"
   },
   {
-    "revision": "d7a68f72544ea544ab2b",
-    "url": "main.73fcd946.js"
+    "revision": "e0405da564368a917473",
+    "url": "main.9f2336c1.js"
   },
   {
     "revision": "32f727f36da54acc409697c387a30b85",
-    "url": "main.73fcd946.js.LICENSE"
+    "url": "main.9f2336c1.js.LICENSE"
   },
   {
     "revision": "1165b9ca54f2146a215c1234ffd04c18",
