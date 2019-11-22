@@ -52,13 +52,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private container: React.RefObject<HTMLDivElement> = React.createRef();
   private canvas: React.RefObject<SVGSVGElement> = React.createRef();
 
-  public componentDidMount = async () => {
-    this.setState({
-      canvasLayers: [
-        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "images/background.jpg")
-      ]
-    });
-  };
+  // public componentDidMount = async () => {
+  //   this.setState({
+  //     canvasLayers: [
+  //       await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "images/background.jpg")
+  //     ]
+  //   });
+  // };
 
   public componentDidUpdate = () => {
     // React の onMouseMove や onTouchMove には passive オプションを渡すことができない
