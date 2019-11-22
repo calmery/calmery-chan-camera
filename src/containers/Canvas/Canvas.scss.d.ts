@@ -3,7 +3,6 @@
 interface CssExports {
   canvasLayerList: string;
   closeAvailableCanvasLayerImagesButton: string;
-  condense: string;
   container: string;
   exportButton: string;
   exporting: string;

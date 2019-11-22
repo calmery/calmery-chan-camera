@@ -30,7 +30,7 @@ const CanvasLayerListElement: React.FC<ICanvasLayerListElementProps> = ({
           })}
           onClick={onRemove}
         >
-          ò
+          <img src="close.svg" />
         </div>
         <div className={styles.imageContainer}>
           <img src={base64} />
