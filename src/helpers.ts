@@ -22,8 +22,10 @@ export const convertSvgToDataUrl = (
     const svg = new Blob([svgText], { type: "image/svg+xml" });
     const url = URL.createObjectURL(svg);
     const image = new Image();
+    const errorMessage =
+      "画像の変換に失敗したよ！\n何度も失敗するときは教えてね...！";
 
-    image.onerror = () => reject();
+    image.onerror = () => reject(errorMessage);
     image.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = width;
@@ -32,7 +34,7 @@ export const convertSvgToDataUrl = (
       const context = canvas.getContext("2d");
 
       if (context === null) {
-        return reject();
+        return reject(errorMessage);
       }
 
       context.drawImage(image, 0, 0, width, height);
@@ -58,6 +60,7 @@ export const convertUrlToLayer = (
   return new Promise((resolve, reject) => {
     const image = new Image();
 
+    image.onerror = () => reject(null);
     image.onload = () => {
       let { width, height } = image;
 
@@ -72,6 +75,12 @@ export const convertUrlToLayer = (
         }
       }
 
+      if (width < 418 || height < 418) {
+        return reject(
+          "画像のサイズが小さすぎるよ！\n縦横 600px 以上の画像を使ってね！"
+        );
+      }
+
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
@@ -79,7 +88,7 @@ export const convertUrlToLayer = (
       const context = canvas.getContext("2d");
 
       if (context === null) {
-        return reject();
+        return reject(null);
       }
 
       context.drawImage(image, 0, 0, width, height);

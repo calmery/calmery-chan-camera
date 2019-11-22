@@ -8,6 +8,7 @@ import { Modal } from "../Modal";
 import { AvailableCanvasLayerImages } from "../AvailableCanvasLayerImages";
 import { CanvasLayerExportButton } from "../../components/CanvasLayerExportButton";
 import { CanvasLayerInputImage } from "../../components/CanvasLayerInputImage";
+import { ErrorMessage } from "../../containers/ErrorMessage";
 import {
   download,
   convertSvgToDataUrl,
@@ -26,6 +27,7 @@ interface ICanvasState {
   isExportError: boolean;
   isExporting: boolean;
   alreadySetEvents: boolean;
+  errorMessage: string | null;
 }
 
 class Canvas extends React.Component<{}, ICanvasState> {
@@ -43,7 +45,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
         y: 0
       },
       canvasLayers: [],
-      isExporting: false
+      isExporting: false,
+      errorMessage: null
     };
   }
 
@@ -94,6 +97,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public render = () => {
     const {
+      errorMessage,
       canvasLayers,
       isOpenAvailableCanvasLayerImages,
       selectedCanvasLayerIndex
@@ -101,7 +105,19 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
-      return <CanvasLayerInputImage onChange={this.handleOnChangeFile} />;
+      return (
+        <React.Fragment>
+          <CanvasLayerInputImage onChange={this.handleOnChangeFile} />
+          <ErrorMessage
+            hidden={errorMessage === null}
+            onClick={() => {
+              this.setState({ errorMessage: null });
+            }}
+          >
+            {errorMessage}
+          </ErrorMessage>
+        </React.Fragment>
+      );
     }
 
     return (
@@ -137,6 +153,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
           isExporting={this.state.isExporting}
           onClick={this.handleOnExport}
         />
+
+        <ErrorMessage
+          hidden={errorMessage === null}
+          onClick={() => {
+            this.setState({ errorMessage: null });
+          }}
+        >
+          {errorMessage}
+        </ErrorMessage>
 
         <Modal hidden={!isOpenAvailableCanvasLayerImages}>
           <div
@@ -399,8 +424,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
         );
         download("calmery.png", dataUrl);
         this.setState({ isExporting: false });
-      } catch (_) {
-        this.setState({ isExporting: false, isExportError: true });
+      } catch (errorMessage) {
+        this.setState({
+          isExporting: false,
+          isExportError: true,
+          errorMessage
+        });
       }
     });
   };
@@ -432,18 +461,22 @@ class Canvas extends React.Component<{}, ICanvasState> {
       }
     });
 
-    const nextBaseLayer = await convertUrlToLayer(
-      CANVAS_LAYER_KIND.BASE,
-      dataUrl
-    );
+    try {
+      const nextBaseLayer = await convertUrlToLayer(
+        CANVAS_LAYER_KIND.BASE,
+        dataUrl
+      );
 
-    if (baseLayerIndex !== null) {
-      canvasLayers[baseLayerIndex] = nextBaseLayer;
-    } else {
-      canvasLayers.push(nextBaseLayer);
+      if (baseLayerIndex !== null) {
+        canvasLayers[baseLayerIndex] = nextBaseLayer;
+      } else {
+        canvasLayers.push(nextBaseLayer);
+      }
+
+      this.setState({ canvasLayers });
+    } catch (errorMessage) {
+      this.setState({ errorMessage });
     }
-
-    this.setState({ canvasLayers });
   };
 
   private handleOnAddCanvasLayer = async (url: string) => {
