@@ -10,9 +10,8 @@
   font-size: $FontSize-S;
   color: $Color-Black;
 
-  span {
-    color: $Color-Pink;
+  img {
+    height: 16px;
     padding: $Spacing-S / 2;
-    font-family: CONDENSEicon;
   }
 }

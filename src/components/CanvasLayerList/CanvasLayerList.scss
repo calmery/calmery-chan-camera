@@ -30,9 +30,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: $FontSize-L;
-    color: $Color-Black;
-    font-family: CONDENSEicon;
+
+    img {
+      height: $FontSize-L;
+    }
   }
 
   &.emphasis {
