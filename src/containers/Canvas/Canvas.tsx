@@ -17,12 +17,11 @@ import {
 interface ICanvasState {
   isDraggingCanvasLayer: boolean;
   isOpenAvailableCanvasLayerImages: boolean;
-  selectedCanvasLayerIndex: number | null;
+  selectedCanvasLayerIndex: number;
   offsetMousePosition: {
     x: number;
     y: number;
   };
-  selectedIndex: number;
   canvasLayers: ICanvasLayer[];
   isExportError: boolean;
   isExporting: boolean;
@@ -37,8 +36,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       alreadySetEvents: false,
       isDraggingCanvasLayer: false,
       isOpenAvailableCanvasLayerImages: false,
-      selectedCanvasLayerIndex: null,
-      selectedIndex: -1,
+      selectedCanvasLayerIndex: -1,
       isExportError: false,
       offsetMousePosition: {
         x: 0,
@@ -98,7 +96,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     const {
       canvasLayers,
       isOpenAvailableCanvasLayerImages,
-      selectedIndex
+      selectedCanvasLayerIndex
     } = this.state;
     const baseLayer = this.findBaseLayer();
 
@@ -130,7 +128,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
         <CanvasLayerList
           canvasLayers={canvasLayers}
-          selectedIndex={selectedIndex}
+          selectedIndex={selectedCanvasLayerIndex}
           onSelect={this.handleOnSelectCanvasLayer}
           onRemove={this.handleOnRemoveCanvasLayer}
         />
@@ -206,16 +204,16 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { canvasLayers, selectedIndex } = this.state;
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
 
-    if (selectedIndex < 0) {
+    if (selectedCanvasLayerIndex < 0) {
       return;
     }
 
     const scale = parseInt(event.target.value, 10);
-    const canvasLayer = canvasLayers[selectedIndex!];
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
-    canvasLayers[selectedIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex] = {
       ...canvasLayer,
       x:
         canvasLayer.x +
@@ -239,15 +237,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnChangeRotate = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { canvasLayers, selectedIndex } = this.state;
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
 
-    if (selectedIndex < 0) {
+    if (selectedCanvasLayerIndex < 0) {
       return;
     }
 
-    const canvasLayer = canvasLayers[selectedIndex!];
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
-    canvasLayers[selectedIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex] = {
       ...canvasLayer,
       effects: {
         ...canvasLayer.effects,
@@ -273,7 +271,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       return;
     }
 
-    const canvasLayer = canvasLayers[selectedCanvasLayerIndex!];
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
     if (this.canvas.current === null) {
       return;
@@ -294,7 +292,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       clientY = (event as MouseEvent).clientY;
     }
 
-    canvasLayers[selectedCanvasLayerIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex] = {
       ...canvasLayer,
       x: Math.round(clientX * ratio - x) + offsetMousePosition.x,
       y: Math.round(clientY * ratio - y) + offsetMousePosition.y
@@ -359,7 +357,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     this.setState({
-      selectedCanvasLayerIndex: null,
       isDraggingCanvasLayer: false
     });
   };
@@ -404,18 +401,20 @@ class Canvas extends React.Component<{}, ICanvasState> {
     });
   };
 
-  private handleOnSelectCanvasLayer = (selectedIndex: number) => {
+  private handleOnSelectCanvasLayer = (selectedCanvasLayerIndex: number) => {
     this.setState({
-      selectedIndex,
-      isOpenAvailableCanvasLayerImages: selectedIndex === -1
+      selectedCanvasLayerIndex,
+      isOpenAvailableCanvasLayerImages: selectedCanvasLayerIndex === -1
     });
   };
 
-  private handleOnRemoveCanvasLayer = (selectedIndex: number) => {
+  private handleOnRemoveCanvasLayer = (selectedCanvasLayerIndex: number) => {
     const { canvasLayers } = this.state;
 
     this.setState({
-      canvasLayers: canvasLayers.filter((_, index) => selectedIndex !== index)
+      canvasLayers: canvasLayers.filter(
+        (_, index) => selectedCanvasLayerIndex !== index
+      )
     });
   };
 
@@ -451,7 +450,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
         ...canvasLayers,
         await convertUrlToLayer(CANVAS_LAYER_KIND.NORMAL, url)
       ],
-      selectedIndex: canvasLayers.length,
+      selectedCanvasLayerIndex: canvasLayers.length,
       isOpenAvailableCanvasLayerImages: false
     });
   };
@@ -459,7 +458,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnCloseAvailableCanvasLayerImages = () => {
     this.setState({
       isOpenAvailableCanvasLayerImages: false,
-      selectedIndex: -2
+      selectedCanvasLayerIndex: -2
     });
   };
 }
