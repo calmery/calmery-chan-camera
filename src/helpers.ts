@@ -75,9 +75,9 @@ export const convertUrlToLayer = (
         }
       }
 
-      if (width < 418 || height < 418) {
+      if (kind === CANVAS_LAYER_KIND.BASE && (width < 418 || height < 418)) {
         return reject(
-          "画像のサイズが小さすぎるよ！\n縦横 600px 以上の画像を使ってね！"
+          "画像のサイズが小さすぎるよ！\n縦横 418px 以上の画像を使ってね！"
         );
       }
 
