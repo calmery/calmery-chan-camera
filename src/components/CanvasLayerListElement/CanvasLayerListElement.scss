@@ -15,6 +15,7 @@
   margin-left: $Spacing-S;
   opacity: $Opacity;
   cursor: pointer;
+  position: relative;
 
   &:first-child {
     margin-left: 0px;
