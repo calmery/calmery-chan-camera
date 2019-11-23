@@ -131,18 +131,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
           <div
             className={classnames(styles.container, styles.canvasElements)}
             ref={this.container}
-            style={
-              {
-                // height: ((window.innerWidth - 48) / (baseLayer.width / baseLayer.height)) + 'px'
-              }
-            }
           >
             <svg
               ref={this.canvas}
               className={styles.svg}
               width={window.innerWidth - 48}
-              // height={((window.innerWidth - 48) / (baseLayer.width / baseLayer.height))}
-              // 小さくした画像にheightに合わせてるためコメントアウト
               viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
               version="1.1"
               baseProfile="full"
