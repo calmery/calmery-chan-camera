@@ -36,7 +36,7 @@ const CanvasLayerList: React.FC<ICanvasLayerListProps> = ({
             [styles.emphasis]: selectedIndex === -1
           })}
         >
-          <img src="plus.svg" />
+          <img src="images/plus.svg" />
         </div>
       </div>
     </div>

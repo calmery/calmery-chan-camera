@@ -218,7 +218,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
             className={styles.closeAvailableCanvasLayerImagesButton}
             onClick={this.handleOnCloseAvailableCanvasLayerImages}
           >
-            <img src="arrow.svg" />
+            <img src="images/arrow.svg" />
           </div>
           <AvailableCanvasLayerImages onSelect={this.handleOnAddCanvasLayer} />
         </Modal>
@@ -234,7 +234,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     >
       <div>
         <div>
-          <img src="scale.svg" />
+          <img src="images/scale.svg" />
         </div>
         <div className={styles.fixedHeight}>
           <input
@@ -251,7 +251,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       </div>
       <div>
         <div>
-          <img src="rotate.svg" />
+          <img src="images/rotate.svg" />
         </div>
         <div className={styles.fixedHeight}>
           <input

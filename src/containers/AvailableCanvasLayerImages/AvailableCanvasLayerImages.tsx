@@ -67,9 +67,9 @@ class AvailableCanvasLayerImages extends React.Component<
     try {
       this.setState({
         isFetchError: false,
-        availableCanvasLayerUrls: await fetch(
-          "available-canvas-layer-urls.json"
-        ).then(response => response.json())
+        availableCanvasLayerUrls: await fetch("layers.json").then(response =>
+          response.json()
+        )
       });
     } catch (_) {
       this.setState({ isFetchError: true });

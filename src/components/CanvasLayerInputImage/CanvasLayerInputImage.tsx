@@ -1,7 +1,6 @@
 import * as React from "react";
 import blueimpLoadImage from "blueimp-load-image";
 import styles from "./CanvasLayerInputImage.scss";
-import { url } from "inspector";
 
 interface ICanvasLayerInputImageProps {
   onChange: (dataUrl: string) => void;
