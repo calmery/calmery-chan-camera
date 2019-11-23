@@ -1,5 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
+import classnames from "classnames";
 import { ICanvasLayer, CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
 import { CanvasLayer } from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
@@ -8,6 +9,7 @@ import { Modal } from "../Modal";
 import { AvailableCanvasLayerImages } from "../AvailableCanvasLayerImages";
 import { CanvasLayerExportButton } from "../../components/CanvasLayerExportButton";
 import { CanvasLayerInputImage } from "../../components/CanvasLayerInputImage";
+import { ErrorMessage } from "../../containers/ErrorMessage";
 import {
   download,
   convertSvgToDataUrl,
@@ -17,16 +19,17 @@ import {
 interface ICanvasState {
   isDraggingCanvasLayer: boolean;
   isOpenAvailableCanvasLayerImages: boolean;
-  selectedCanvasLayerIndex: number | null;
+  selectedCanvasLayerIndex: number;
   offsetMousePosition: {
     x: number;
     y: number;
   };
-  selectedIndex: number;
+  canvasLogo: ICanvasLayer | null;
   canvasLayers: ICanvasLayer[];
   isExportError: boolean;
   isExporting: boolean;
   alreadySetEvents: boolean;
+  errorMessage: string | null;
 }
 
 class Canvas extends React.Component<{}, ICanvasState> {
@@ -37,15 +40,16 @@ class Canvas extends React.Component<{}, ICanvasState> {
       alreadySetEvents: false,
       isDraggingCanvasLayer: false,
       isOpenAvailableCanvasLayerImages: false,
-      selectedCanvasLayerIndex: null,
-      selectedIndex: -1,
+      selectedCanvasLayerIndex: -1,
       isExportError: false,
+      canvasLogo: null,
       offsetMousePosition: {
         x: 0,
         y: 0
       },
       canvasLayers: [],
-      isExporting: false
+      isExporting: false,
+      errorMessage: null
     };
   }
 
@@ -56,9 +60,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public componentDidMount = async () => {
     this.setState({
-      canvasLayers: [
-        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "images/background.jpg")
-      ]
+      canvasLogo: await convertUrlToLayer(
+        CANVAS_LAYER_KIND.LOGO,
+        "images/canvas-logo.png"
+      )
     });
   };
 
@@ -96,14 +101,28 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public render = () => {
     const {
+      errorMessage,
       canvasLayers,
       isOpenAvailableCanvasLayerImages,
-      selectedIndex
+      selectedCanvasLayerIndex,
+      canvasLogo
     } = this.state;
     const baseLayer = this.findBaseLayer();
 
     if (baseLayer === undefined) {
-      return <CanvasLayerInputImage onChange={this.handleOnChangeFile} />;
+      return (
+        <React.Fragment>
+          <CanvasLayerInputImage onChange={this.handleOnChangeFile} />
+          <ErrorMessage
+            hidden={errorMessage === null}
+            onClick={() => {
+              this.setState({ errorMessage: null });
+            }}
+          >
+            {errorMessage}
+          </ErrorMessage>
+        </React.Fragment>
+      );
     }
 
     return (
@@ -123,14 +142,46 @@ class Canvas extends React.Component<{}, ICanvasState> {
             xmlnsXlink="http://www.w3.org/1999/xlink"
           >
             {canvasLayers.map(this.renderCanvasLayer)}
+            {canvasLogo &&
+              this.renderCanvasLayer(
+                {
+                  ...canvasLogo,
+                  width: baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3,
+                  height:
+                    175 /
+                    (1000 /
+                      (baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3)),
+                  x:
+                    baseLayer.width -
+                    (baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3) -
+                    24,
+                  y:
+                    baseLayer.height -
+                    175 /
+                      (1000 /
+                        (baseLayer.width / 3 < 209
+                          ? 209
+                          : baseLayer.width / 3)) -
+                    24
+                },
+                -1
+              )}
           </svg>
         </div>
 
-        {this.renderInputs()}
+        {this.renderInputs(
+          selectedCanvasLayerIndex < 0,
+          selectedCanvasLayerIndex < 0
+            ? 1
+            : canvasLayers[selectedCanvasLayerIndex].effects.scale,
+          selectedCanvasLayerIndex < 0
+            ? 0
+            : canvasLayers[selectedCanvasLayerIndex].effects.rotate
+        )}
 
         <CanvasLayerList
           canvasLayers={canvasLayers}
-          selectedIndex={selectedIndex}
+          selectedIndex={selectedCanvasLayerIndex}
           onSelect={this.handleOnSelectCanvasLayer}
           onRemove={this.handleOnRemoveCanvasLayer}
         />
@@ -140,12 +191,21 @@ class Canvas extends React.Component<{}, ICanvasState> {
           onClick={this.handleOnExport}
         />
 
+        <ErrorMessage
+          hidden={errorMessage === null}
+          onClick={() => {
+            this.setState({ errorMessage: null });
+          }}
+        >
+          {errorMessage}
+        </ErrorMessage>
+
         <Modal hidden={!isOpenAvailableCanvasLayerImages}>
           <div
             className={styles.closeAvailableCanvasLayerImagesButton}
             onClick={this.handleOnCloseAvailableCanvasLayerImages}
           >
-            û
+            <img src="arrow.svg" />
           </div>
           <AvailableCanvasLayerImages onSelect={this.handleOnAddCanvasLayer} />
         </Modal>
@@ -153,35 +213,42 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
-  private renderInputs = () => (
-    <div className={styles.inputs}>
+  private renderInputs = (disabled: boolean, scale: number, rotate: number) => (
+    <div
+      className={classnames(styles.inputs, {
+        [styles.disabled]: disabled
+      })}
+    >
       <div>
-        <div className={styles.condense}>õ</div>
+        <div>
+          <img src="scale.svg" />
+        </div>
         <div className={styles.fixedHeight}>
           <input
             className={styles.inputRange}
             type="range"
-            min="1"
+            min="0.5"
             max="5"
-            defaultValue="1"
+            step="0.1"
+            value={scale}
+            disabled={disabled}
             onChange={this.handleOnChangeScale}
           />
         </div>
       </div>
       <div>
-        <div className={styles.condense}>|</div>
+        <div>
+          <img src="rotate.svg" />
+        </div>
         <div className={styles.fixedHeight}>
           <input
             className={styles.inputRange}
             type="range"
             min="0"
             max="359"
-            defaultValue="0"
+            disabled={disabled}
+            value={rotate}
             onChange={this.handleOnChangeRotate}
-            onTouchMove={event => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
           />
         </div>
       </div>
@@ -206,16 +273,16 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { canvasLayers, selectedIndex } = this.state;
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
 
-    if (selectedIndex < 0) {
+    if (selectedCanvasLayerIndex < 0) {
       return;
     }
 
-    const scale = parseInt(event.target.value, 10);
-    const canvasLayer = canvasLayers[selectedIndex!];
+    const scale = parseFloat(event.target.value);
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
-    canvasLayers[selectedIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex] = {
       ...canvasLayer,
       x:
         canvasLayer.x +
@@ -239,15 +306,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnChangeRotate = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { canvasLayers, selectedIndex } = this.state;
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
 
-    if (selectedIndex < 0) {
+    if (selectedCanvasLayerIndex < 0) {
       return;
     }
 
-    const canvasLayer = canvasLayers[selectedIndex!];
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
-    canvasLayers[selectedIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex] = {
       ...canvasLayer,
       effects: {
         ...canvasLayer.effects,
@@ -273,7 +340,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       return;
     }
 
-    const canvasLayer = canvasLayers[selectedCanvasLayerIndex!];
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
     if (this.canvas.current === null) {
       return;
@@ -294,7 +361,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       clientY = (event as MouseEvent).clientY;
     }
 
-    canvasLayers[selectedCanvasLayerIndex!] = {
+    canvasLayers[selectedCanvasLayerIndex] = {
       ...canvasLayer,
       x: Math.round(clientX * ratio - x) + offsetMousePosition.x,
       y: Math.round(clientY * ratio - y) + offsetMousePosition.y
@@ -359,7 +426,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
     }
 
     this.setState({
-      selectedCanvasLayerIndex: null,
       isDraggingCanvasLayer: false
     });
   };
@@ -398,24 +464,30 @@ class Canvas extends React.Component<{}, ICanvasState> {
         );
         download("calmery.png", dataUrl);
         this.setState({ isExporting: false });
-      } catch (_) {
-        this.setState({ isExporting: false, isExportError: true });
+      } catch (errorMessage) {
+        this.setState({
+          isExporting: false,
+          isExportError: true,
+          errorMessage
+        });
       }
     });
   };
 
-  private handleOnSelectCanvasLayer = (selectedIndex: number) => {
+  private handleOnSelectCanvasLayer = (selectedCanvasLayerIndex: number) => {
     this.setState({
-      selectedIndex,
-      isOpenAvailableCanvasLayerImages: selectedIndex === -1
+      selectedCanvasLayerIndex,
+      isOpenAvailableCanvasLayerImages: selectedCanvasLayerIndex === -1
     });
   };
 
-  private handleOnRemoveCanvasLayer = (selectedIndex: number) => {
+  private handleOnRemoveCanvasLayer = (selectedCanvasLayerIndex: number) => {
     const { canvasLayers } = this.state;
 
     this.setState({
-      canvasLayers: canvasLayers.filter((_, index) => selectedIndex !== index)
+      canvasLayers: canvasLayers.filter(
+        (_, index) => selectedCanvasLayerIndex !== index
+      )
     });
   };
 
@@ -429,18 +501,22 @@ class Canvas extends React.Component<{}, ICanvasState> {
       }
     });
 
-    const nextBaseLayer = await convertUrlToLayer(
-      CANVAS_LAYER_KIND.BASE,
-      dataUrl
-    );
+    try {
+      const nextBaseLayer = await convertUrlToLayer(
+        CANVAS_LAYER_KIND.BASE,
+        dataUrl
+      );
 
-    if (baseLayerIndex !== null) {
-      canvasLayers[baseLayerIndex] = nextBaseLayer;
-    } else {
-      canvasLayers.push(nextBaseLayer);
+      if (baseLayerIndex !== null) {
+        canvasLayers[baseLayerIndex] = nextBaseLayer;
+      } else {
+        canvasLayers.push(nextBaseLayer);
+      }
+
+      this.setState({ canvasLayers });
+    } catch (errorMessage) {
+      this.setState({ errorMessage });
     }
-
-    this.setState({ canvasLayers });
   };
 
   private handleOnAddCanvasLayer = async (url: string) => {
@@ -451,7 +527,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
         ...canvasLayers,
         await convertUrlToLayer(CANVAS_LAYER_KIND.NORMAL, url)
       ],
-      selectedIndex: canvasLayers.length,
+      selectedCanvasLayerIndex: canvasLayers.length,
       isOpenAvailableCanvasLayerImages: false
     });
   };
@@ -459,7 +535,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnCloseAvailableCanvasLayerImages = () => {
     this.setState({
       isOpenAvailableCanvasLayerImages: false,
-      selectedIndex: -2
+      selectedCanvasLayerIndex: -2
     });
   };
 }

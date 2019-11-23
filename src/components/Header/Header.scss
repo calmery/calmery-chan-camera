@@ -5,7 +5,7 @@ a {
 }
 
 .container {
-  width: 100%;
+  margin: $Spacing-L;
   height: 48px;
   display: flex;
   align-items: center;
@@ -22,10 +22,6 @@ a {
   width: 32px;
   height: 32px;
   margin-left: $Spacing-M;
-  color: $Color-Black;
-  font-family: CONDENSEicon;
-  font-size: $FontSize-S;
-  line-height: $FontSize-S;
   background: $Color-White;
   box-shadow: $Box-Shadow;
   border-radius: 100%;
@@ -36,5 +32,9 @@ a {
 
   &:hover {
     opacity: $Opacity;
+  }
+
+  img {
+    height: $FontSize-S;
   }
 }

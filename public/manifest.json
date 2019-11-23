@@ -1,6 +1,6 @@
 {
   "background_color": "#FFFFFF",
-  "display": "standalone",
+  "display": "browser",
   "icons": [
     {
       "sizes": "72x72",
@@ -43,8 +43,8 @@
       "type": "image/png"
     }
   ],
-  "name": "React Boilerplate",
-  "short_name": "React Boilerplate",
+  "name": "かるめりちゃんカメラ",
+  "short_name": "かるカメ",
   "start_url": ".",
   "theme_color": "#000000"
 }

@@ -1,6 +1,7 @@
 export enum CANVAS_LAYER_KIND {
   BASE,
-  NORMAL
+  NORMAL,
+  LOGO
 }
 
 export interface ICanvasLayer {
