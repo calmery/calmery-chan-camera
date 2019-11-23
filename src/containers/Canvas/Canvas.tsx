@@ -185,22 +185,26 @@ class Canvas extends React.Component<{}, ICanvasState> {
           </div>
 
           <div className={styles.editorElements}>
-            {this.renderInputs(
-              selectedCanvasLayerIndex < 0,
-              selectedCanvasLayerIndex < 0
-                ? 1
-                : canvasLayers[selectedCanvasLayerIndex].effects.scale,
-              selectedCanvasLayerIndex < 0
-                ? 0
-                : canvasLayers[selectedCanvasLayerIndex].effects.rotate
-            )}
+            <div className={styles.PCReverse}>
+              <div className={styles.renderInputs}>
+                {this.renderInputs(
+                  selectedCanvasLayerIndex < 0,
+                  selectedCanvasLayerIndex < 0
+                    ? 1
+                    : canvasLayers[selectedCanvasLayerIndex].effects.scale,
+                  selectedCanvasLayerIndex < 0
+                    ? 0
+                    : canvasLayers[selectedCanvasLayerIndex].effects.rotate
+                )}
+              </div>
 
-            <CanvasLayerList
-              canvasLayers={canvasLayers}
-              selectedIndex={selectedCanvasLayerIndex}
-              onSelect={this.handleOnSelectCanvasLayer}
-              onRemove={this.handleOnRemoveCanvasLayer}
-            />
+              <CanvasLayerList
+                canvasLayers={canvasLayers}
+                selectedIndex={selectedCanvasLayerIndex}
+                onSelect={this.handleOnSelectCanvasLayer}
+                onRemove={this.handleOnRemoveCanvasLayer}
+              />
+            </div>
 
             <CanvasLayerExportButton
               isExporting={this.state.isExporting}
