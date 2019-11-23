@@ -1,3 +1,8 @@
+import ReactGA from "react-ga";
+import {
+  GOOGLE_ANALYTICS,
+  GOOGLE_ANALYTICS_ACTION
+} from "./types/GoogleAnalytics";
 import { CANVAS_LAYER_KIND, ICanvasLayer } from "./types/CanvasLayer";
 
 const convertDataUrlToBlob = (dataUrl: string) => {
@@ -55,7 +60,8 @@ export const download = (name: string, body: string) => {
 
 export const convertUrlToLayer = (
   kind: CANVAS_LAYER_KIND,
-  imageUrl: string
+  imageUrl: string,
+  id?: number
 ): Promise<ICanvasLayer> => {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -94,6 +100,7 @@ export const convertUrlToLayer = (
       context.drawImage(image, 0, 0, width, height);
 
       resolve({
+        id,
         kind,
         base64: canvas.toDataURL("image/png"),
         width,
@@ -108,5 +115,17 @@ export const convertUrlToLayer = (
     };
 
     image.src = imageUrl;
+  });
+};
+
+export const sendToGA = (
+  category: GOOGLE_ANALYTICS,
+  action: GOOGLE_ANALYTICS_ACTION,
+  value?: number
+) => {
+  ReactGA.event({
+    category,
+    action,
+    value
   });
 };

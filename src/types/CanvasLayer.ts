@@ -5,6 +5,7 @@ export enum CANVAS_LAYER_KIND {
 }
 
 export interface ICanvasLayer {
+  id?: number;
   kind: CANVAS_LAYER_KIND;
   base64: string;
   width: number;

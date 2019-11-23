@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./AvailableCanvasLayerImages.scss";
 
 interface IAvailableCanvasLayerImagesProps {
-  onSelect: (url: string) => void;
+  onSelect: (url: string, index: number) => void;
 }
 
 interface IAvailableCanvasLayerImagesState {
@@ -54,7 +54,7 @@ class AvailableCanvasLayerImages extends React.Component<
           <img
             key={index}
             src={availableCanvasLayerUrl}
-            onClick={() => onSelect(availableCanvasLayerUrl)}
+            onClick={() => onSelect(availableCanvasLayerUrl, index + 1)}
           />
         ))}
       </div>

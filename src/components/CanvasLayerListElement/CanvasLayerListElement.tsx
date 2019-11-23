@@ -28,7 +28,10 @@ const CanvasLayerListElement: React.FC<ICanvasLayerListElementProps> = ({
           className={classnames(styles.removeButton, {
             [styles.display]: active
           })}
-          onClick={onRemove}
+          onClick={event => {
+            event.stopPropagation();
+            onRemove();
+          }}
         >
           <img src="close.svg" />
         </div>
