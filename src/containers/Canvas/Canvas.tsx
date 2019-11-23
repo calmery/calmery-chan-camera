@@ -13,12 +13,18 @@ import { ErrorMessage } from "../../containers/ErrorMessage";
 import {
   download,
   convertSvgToDataUrl,
-  convertUrlToLayer
+  convertUrlToLayer,
+  sendToGA
 } from "../../helpers";
+import {
+  GOOGLE_ANALYTICS,
+  GOOGLE_ANALYTICS_ACTION
+} from "../../types/GoogleAnalytics";
 
 interface ICanvasState {
   isDraggingCanvasLayer: boolean;
   isOpenAvailableCanvasLayerImages: boolean;
+  isOpenInformation: boolean;
   selectedCanvasLayerIndex: number;
   offsetMousePosition: {
     x: number;
@@ -39,6 +45,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     this.state = {
       alreadySetEvents: false,
       isDraggingCanvasLayer: false,
+      isOpenInformation: false,
       isOpenAvailableCanvasLayerImages: false,
       selectedCanvasLayerIndex: -1,
       isExportError: false,
@@ -105,6 +112,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       canvasLayers,
       isOpenAvailableCanvasLayerImages,
       selectedCanvasLayerIndex,
+      isOpenInformation,
       canvasLogo
     } = this.state;
     const baseLayer = this.findBaseLayer();
@@ -200,12 +208,17 @@ class Canvas extends React.Component<{}, ICanvasState> {
           {errorMessage}
         </ErrorMessage>
 
-        <Modal hidden={!isOpenAvailableCanvasLayerImages}>
+        <Modal
+          hidden={!isOpenAvailableCanvasLayerImages}
+          onClose={() => {
+            this.setState({ isOpenAvailableCanvasLayerImages: false });
+          }}
+        >
           <div
             className={styles.closeAvailableCanvasLayerImagesButton}
             onClick={this.handleOnCloseAvailableCanvasLayerImages}
           >
-            <img src="arrow.svg" />
+            <img src="images/arrow.svg" alt="閉じる" />
           </div>
           <AvailableCanvasLayerImages onSelect={this.handleOnAddCanvasLayer} />
         </Modal>
@@ -221,7 +234,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     >
       <div>
         <div>
-          <img src="scale.svg" />
+          <img src="images/scale.svg" alt="拡大縮小" />
         </div>
         <div className={styles.fixedHeight}>
           <input
@@ -238,7 +251,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       </div>
       <div>
         <div>
-          <img src="rotate.svg" />
+          <img src="images/rotate.svg" alt="回転" />
         </div>
         <div className={styles.fixedHeight}>
           <input
@@ -464,6 +477,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
         );
         download("calmery.png", dataUrl);
         this.setState({ isExporting: false });
+        sendToGA(
+          GOOGLE_ANALYTICS.CANVAS,
+          GOOGLE_ANALYTICS_ACTION.CANVAS_EXPORT
+        );
       } catch (errorMessage) {
         this.setState({
           isExporting: false,
@@ -484,7 +501,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private handleOnRemoveCanvasLayer = (selectedCanvasLayerIndex: number) => {
     const { canvasLayers } = this.state;
 
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
+    sendToGA(
+      GOOGLE_ANALYTICS.CANVAS,
+      GOOGLE_ANALYTICS_ACTION.CANVAS_NORMAL_LAYER_ADD,
+      canvasLayer.id
+    );
+
     this.setState({
+      selectedCanvasLayerIndex: -1,
       canvasLayers: canvasLayers.filter(
         (_, index) => selectedCanvasLayerIndex !== index
       )
@@ -513,20 +538,32 @@ class Canvas extends React.Component<{}, ICanvasState> {
         canvasLayers.push(nextBaseLayer);
       }
 
+      sendToGA(
+        GOOGLE_ANALYTICS.CANVAS,
+        GOOGLE_ANALYTICS_ACTION.CANVAS_BASE_LAYER_ADD
+      );
       this.setState({ canvasLayers });
     } catch (errorMessage) {
       this.setState({ errorMessage });
     }
   };
 
-  private handleOnAddCanvasLayer = async (url: string) => {
+  private handleOnAddCanvasLayer = async (url: string, id: number) => {
     const { canvasLayers } = this.state;
 
+    const canvasLayer = await convertUrlToLayer(
+      CANVAS_LAYER_KIND.NORMAL,
+      url,
+      id
+    );
+    sendToGA(
+      GOOGLE_ANALYTICS.CANVAS,
+      GOOGLE_ANALYTICS_ACTION.CANVAS_NORMAL_LAYER_ADD,
+      id
+    );
+
     this.setState({
-      canvasLayers: [
-        ...canvasLayers,
-        await convertUrlToLayer(CANVAS_LAYER_KIND.NORMAL, url)
-      ],
+      canvasLayers: [...canvasLayers, canvasLayer],
       selectedCanvasLayerIndex: canvasLayers.length,
       isOpenAvailableCanvasLayerImages: false
     });

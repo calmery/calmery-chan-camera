@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./AvailableCanvasLayerImages.scss";
 
 interface IAvailableCanvasLayerImagesProps {
-  onSelect: (url: string) => void;
+  onSelect: (url: string, index: number) => void;
 }
 
 interface IAvailableCanvasLayerImagesState {
@@ -35,7 +35,7 @@ class AvailableCanvasLayerImages extends React.Component<
       return (
         <div className={styles.errorContainer}>
           <div>
-            <img src="images/help.png" />
+            <img src="images/help.png" alt="読み込みに失敗した" />
             <div className={styles.errorMessage}>読み込みに失敗しました！</div>
             <div
               className={styles.reloadButton}
@@ -54,7 +54,8 @@ class AvailableCanvasLayerImages extends React.Component<
           <img
             key={index}
             src={availableCanvasLayerUrl}
-            onClick={() => onSelect(availableCanvasLayerUrl)}
+            onClick={() => onSelect(availableCanvasLayerUrl, index + 1)}
+            alt="追加した画像"
           />
         ))}
       </div>
@@ -67,9 +68,9 @@ class AvailableCanvasLayerImages extends React.Component<
     try {
       this.setState({
         isFetchError: false,
-        availableCanvasLayerUrls: await fetch(
-          "available-canvas-layer-urls.json"
-        ).then(response => response.json())
+        availableCanvasLayerUrls: await fetch("layers.json").then(response =>
+          response.json()
+        )
       });
     } catch (_) {
       this.setState({ isFetchError: true });

@@ -7,9 +7,10 @@ import styles from "./Modal.scss";
 interface ModalProps {
   children: React.ReactNode;
   hidden?: boolean;
+  onClose: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ children, hidden }) => {
+const Modal: React.FC<ModalProps> = ({ children, hidden, onClose }) => {
   const firstUpdate = useRef(true);
   const [isAnimationCompleted, setIsAnimationCompleted] = useState(true);
 
@@ -37,6 +38,7 @@ const Modal: React.FC<ModalProps> = ({ children, hidden }) => {
           fadeIn: !hidden,
           fadeOut: hidden
         })}
+        onClick={onClose}
       ></div>
       <div
         className={classnames(styles.children, {

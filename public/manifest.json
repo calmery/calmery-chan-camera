@@ -1,6 +1,6 @@
 {
   "background_color": "#FFFFFF",
-  "display": "browser",
+  "display": "minimal-ui",
   "icons": [
     {
       "sizes": "72x72",

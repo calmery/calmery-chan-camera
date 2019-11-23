@@ -1,0 +1,19 @@
+@import "../../constants";
+
+.container {
+  font-family: Quicksand, SmartFontUI, sans-serif;
+  color: $Color-Black;
+}
+
+.column {
+  margin-bottom: $Spacing-L;
+}
+
+.label {
+  font-size: $FontSize-L;
+  margin-bottom: $Spacing-S;
+}
+
+.description {
+  font-size: $FontSize-S;
+}
