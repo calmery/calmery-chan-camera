@@ -14,9 +14,12 @@ const CanvasLayerInputImage: React.FC<ICanvasLayerInputImageProps> = ({
       className={styles.background}
       style={{
         backgroundImage: `url(${(() => {
-          return ["thumbnails/1.jpg", "thumbnails/2.jpg"][
-            Math.floor(Math.random() * 2)
-          ];
+          return [
+            "thumbnails/1.jpg",
+            "thumbnails/2.jpg",
+            "thumbnails/3.jpg",
+            "thumbnails/4.jpg"
+          ][Math.floor(Math.random() * 4)];
         })()})`
       }}
     ></div>
