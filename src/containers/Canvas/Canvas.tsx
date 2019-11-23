@@ -135,78 +135,88 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
     return (
       <React.Fragment>
-        <div className={styles.container} ref={this.container}>
-          <svg
-            ref={this.canvas}
-            className={styles.svg}
-            width={window.innerWidth - 48}
-            height={
-              (window.innerWidth - 48) / (baseLayer.width / baseLayer.height)
-            }
-            viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
-            version="1.1"
-            baseProfile="full"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlnsXlink="http://www.w3.org/1999/xlink"
+        <div className={styles.parentFlex}>
+          <div
+            className={classnames(styles.container, styles.canvasElements)}
+            ref={this.container}
           >
-            {canvasLayers.map(this.renderCanvasLayer)}
-            {canvasLogo &&
-              this.renderCanvasLayer(
-                {
-                  ...canvasLogo,
-                  width: baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3,
-                  height:
-                    175 /
-                    (1000 /
-                      (baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3)),
-                  x:
-                    baseLayer.width -
-                    (baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3) -
-                    24,
-                  y:
-                    baseLayer.height -
-                    175 /
+            <svg
+              ref={this.canvas}
+              className={styles.svg}
+              width={window.innerWidth - 48}
+              // height={
+              //   (window.innerWidth - 48) / (baseLayer.width / baseLayer.height)
+              // }
+              viewBox={`0 0 ${baseLayer.width} ${baseLayer.height}`}
+              version="1.1"
+              baseProfile="full"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+            >
+              {canvasLayers.map(this.renderCanvasLayer)}
+              {canvasLogo &&
+                this.renderCanvasLayer(
+                  {
+                    ...canvasLogo,
+                    width:
+                      baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3,
+                    height:
+                      175 /
                       (1000 /
                         (baseLayer.width / 3 < 209
                           ? 209
-                          : baseLayer.width / 3)) -
-                    24
-                },
-                -1
-              )}
-          </svg>
+                          : baseLayer.width / 3)),
+                    x:
+                      baseLayer.width -
+                      (baseLayer.width / 3 < 209 ? 209 : baseLayer.width / 3) -
+                      24,
+                    y:
+                      baseLayer.height -
+                      175 /
+                        (1000 /
+                          (baseLayer.width / 3 < 209
+                            ? 209
+                            : baseLayer.width / 3)) -
+                      24
+                  },
+                  -1
+                )}
+            </svg>
+          </div>
+
+          <div className={styles.editorElements}>
+            {this.renderInputs(
+              selectedCanvasLayerIndex < 0,
+              selectedCanvasLayerIndex < 0
+                ? 1
+                : canvasLayers[selectedCanvasLayerIndex].effects.scale,
+              selectedCanvasLayerIndex < 0
+                ? 0
+                : canvasLayers[selectedCanvasLayerIndex].effects.rotate
+            )}
+
+            <CanvasLayerList
+              canvasLayers={canvasLayers}
+              selectedIndex={selectedCanvasLayerIndex}
+              onSelect={this.handleOnSelectCanvasLayer}
+              onRemove={this.handleOnRemoveCanvasLayer}
+            />
+
+            <CanvasLayerExportButton
+              isExporting={this.state.isExporting}
+              onClick={this.handleOnExport}
+            />
+
+            <ErrorMessage
+              hidden={errorMessage === null}
+              onClick={() => {
+                this.setState({ errorMessage: null });
+              }}
+            >
+              {errorMessage}
+            </ErrorMessage>
+          </div>
         </div>
-
-        {this.renderInputs(
-          selectedCanvasLayerIndex < 0,
-          selectedCanvasLayerIndex < 0
-            ? 1
-            : canvasLayers[selectedCanvasLayerIndex].effects.scale,
-          selectedCanvasLayerIndex < 0
-            ? 0
-            : canvasLayers[selectedCanvasLayerIndex].effects.rotate
-        )}
-
-        <CanvasLayerList
-          canvasLayers={canvasLayers}
-          selectedIndex={selectedCanvasLayerIndex}
-          onSelect={this.handleOnSelectCanvasLayer}
-          onRemove={this.handleOnRemoveCanvasLayer}
-        />
-
-        <CanvasLayerExportButton
-          isExporting={this.state.isExporting}
-          onClick={this.handleOnExport}
-        />
-
-        <ErrorMessage
-          hidden={errorMessage === null}
-          onClick={() => {
-            this.setState({ errorMessage: null });
-          }}
-        >
-          {errorMessage}
-        </ErrorMessage>
 
         <Modal
           hidden={!isOpenAvailableCanvasLayerImages}
