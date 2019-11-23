@@ -121,11 +121,13 @@ export const convertUrlToLayer = (
 export const sendToGA = (
   category: GOOGLE_ANALYTICS,
   action: GOOGLE_ANALYTICS_ACTION,
+  label?: string,
   value?: number
 ) => {
   ReactGA.event({
     category,
     action,
+    label,
     value
   });
 };
