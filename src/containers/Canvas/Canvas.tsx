@@ -214,9 +214,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
           <input
             className={styles.inputRange}
             type="range"
-            min="1"
+            min="0.5"
             max="5"
             defaultValue="1"
+            step="0.1"
             onChange={this.handleOnChangeScale}
           />
         </div>
@@ -267,7 +268,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       return;
     }
 
-    const scale = parseInt(event.target.value, 10);
+    const scale = parseFloat(event.target.value);
     const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
 
     canvasLayers[selectedCanvasLayerIndex] = {
