@@ -135,4 +135,13 @@
     max-width: 400px;
     min-height: 400px;
   }
+
+  .PCReverse {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .renderInputs {
+    order: 1;
+  }
 }
