@@ -3,10 +3,11 @@
 .container {
   @include animation;
 
-  width: 100%;
+  margin: 0 $Spacing-L;
   background: $Color-White;
   font-size: $FontSize-S;
   color: $Color-Black;
+  cursor: pointer;
   border-radius: $Border-Radius;
   box-shadow: $Box-Shadow;
   padding: $Spacing-L;

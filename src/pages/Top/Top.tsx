@@ -11,13 +11,13 @@ class Top extends React.Component {
   };
 
   public render = () => (
-    <div className={styles.container}>
+    <React.Fragment>
       <Header />
       <div className={styles.contents}>
         <Canvas />
       </div>
       <Footer />
-    </div>
+    </React.Fragment>
   );
 }
 

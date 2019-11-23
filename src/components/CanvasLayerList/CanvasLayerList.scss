@@ -4,6 +4,8 @@
   display: flex;
   overflow-x: scroll;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  padding: 0 $Spacing-L;
 }
 
 .canvasLayerContainer {
@@ -30,6 +32,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-right: $Spacing-L;
 
     img {
       height: $FontSize-L;
