@@ -33,10 +33,10 @@ const CanvasLayerListElement: React.FC<ICanvasLayerListElementProps> = ({
             onRemove();
           }}
         >
-          <img src="images/close.svg" />
+          <img src="images/close.svg" alt="閉じる" />
         </div>
         <div className={styles.imageContainer}>
-          <img src={base64} />
+          <img src={base64} alt="追加する画像" />
         </div>
       </div>
     </div>

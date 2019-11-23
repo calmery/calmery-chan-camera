@@ -48,7 +48,7 @@ class Top extends React.Component<{}, ITopState> {
             className={styles.closeInformationButton}
             onClick={this.onCloseInformation}
           >
-            <img src="images/arrow.svg" />
+            <img src="images/arrow.svg" alt="閉じる" />
           </div>
           <Information />
         </Modal>

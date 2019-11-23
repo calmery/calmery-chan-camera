@@ -46,7 +46,7 @@ const ErrorMessage: React.FC<ModalProps> = ({ children, hidden, onClick }) => {
         })}
       >
         <div className={styles.errorContainer}>
-          <img src="layers/22.png" />
+          <img src="layers/22.png" alt="失敗した" />
           <div className={styles.errorMessage}>{children}</div>
           <div className={styles.okButton} onClick={() => onClick()}>
             わかった

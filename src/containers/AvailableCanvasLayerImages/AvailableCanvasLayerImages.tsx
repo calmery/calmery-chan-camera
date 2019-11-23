@@ -35,7 +35,7 @@ class AvailableCanvasLayerImages extends React.Component<
       return (
         <div className={styles.errorContainer}>
           <div>
-            <img src="images/help.png" />
+            <img src="images/help.png" alt="読み込みに失敗した" />
             <div className={styles.errorMessage}>読み込みに失敗しました！</div>
             <div
               className={styles.reloadButton}
@@ -55,6 +55,7 @@ class AvailableCanvasLayerImages extends React.Component<
             key={index}
             src={availableCanvasLayerUrl}
             onClick={() => onSelect(availableCanvasLayerUrl, index + 1)}
+            alt="追加した画像"
           />
         ))}
       </div>
