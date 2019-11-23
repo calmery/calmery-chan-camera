@@ -1,6 +1,7 @@
 import * as React from "react";
 import blueimpLoadImage from "blueimp-load-image";
 import styles from "./CanvasLayerInputImage.scss";
+import { url } from "inspector";
 
 interface ICanvasLayerInputImageProps {
   onChange: (dataUrl: string) => void;
@@ -10,7 +11,16 @@ const CanvasLayerInputImage: React.FC<ICanvasLayerInputImageProps> = ({
   onChange
 }) => (
   <div className={styles.container}>
-    <div className={styles.background}></div>
+    <div
+      className={styles.background}
+      style={{
+        backgroundImage: `url(${(() => {
+          return ["thumbnails/1.jpg", "thumbnails/2.jpg"][
+            Math.floor(Math.random() * 2)
+          ];
+        })()})`
+      }}
+    ></div>
     <div className={styles.message}>クリック、タップして画像を読み込む</div>
     <input
       type="file"
