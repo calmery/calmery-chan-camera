@@ -7,3 +7,14 @@
   line-height: $LineHeight-S;
   font-family: SmartFontUI, Quicksand, sans-serif;
 }
+
+.closeInformationButton {
+  text-align: center;
+  color: rgba(60, 60, 60, 1);
+  margin-bottom: 24px;
+  cursor: pointer;
+
+  img {
+    height: 16px;
+  }
+}

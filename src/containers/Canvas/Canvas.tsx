@@ -24,6 +24,7 @@ import {
 interface ICanvasState {
   isDraggingCanvasLayer: boolean;
   isOpenAvailableCanvasLayerImages: boolean;
+  isOpenInformation: boolean;
   selectedCanvasLayerIndex: number;
   offsetMousePosition: {
     x: number;
@@ -44,6 +45,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     this.state = {
       alreadySetEvents: false,
       isDraggingCanvasLayer: false,
+      isOpenInformation: false,
       isOpenAvailableCanvasLayerImages: false,
       selectedCanvasLayerIndex: -1,
       isExportError: false,
@@ -110,6 +112,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       canvasLayers,
       isOpenAvailableCanvasLayerImages,
       selectedCanvasLayerIndex,
+      isOpenInformation,
       canvasLogo
     } = this.state;
     const baseLayer = this.findBaseLayer();
@@ -205,7 +208,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
           {errorMessage}
         </ErrorMessage>
 
-        <Modal hidden={!isOpenAvailableCanvasLayerImages}>
+        <Modal
+          hidden={!isOpenAvailableCanvasLayerImages}
+          onClose={() => {
+            this.setState({ isOpenAvailableCanvasLayerImages: false });
+          }}
+        >
           <div
             className={styles.closeAvailableCanvasLayerImagesButton}
             onClick={this.handleOnCloseAvailableCanvasLayerImages}
