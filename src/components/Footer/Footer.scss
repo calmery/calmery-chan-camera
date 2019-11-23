@@ -8,7 +8,8 @@
   font-family: Quicksand;
   font-size: $FontSize-S;
   color: $Color-Black;
-  margin: $Spacing-L;
+  padding: $Spacing-L;
+  padding-top: 0;
 
   img {
     height: 16px;
