@@ -110,3 +110,26 @@
   width: 100%;
   height: 24px;
 }
+
+.parentFlex {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 980px;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.canvasElements {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 65%;
+}
+
+.editorElements {
+  width: 35%;
+  max-width: 400px;
+  min-height: 400px;
+}
