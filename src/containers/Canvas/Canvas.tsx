@@ -1,5 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
+import classnames from "classnames";
 import { ICanvasLayer, CANVAS_LAYER_KIND } from "../../types/CanvasLayer";
 import { CanvasLayer } from "../../components/CanvasLayer";
 import styles from "./Canvas.scss";
@@ -168,7 +169,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
           </svg>
         </div>
 
-        {this.renderInputs()}
+        {this.renderInputs(
+          selectedCanvasLayerIndex < 0,
+          selectedCanvasLayerIndex < 0
+            ? 1
+            : canvasLayers[selectedCanvasLayerIndex].effects.scale,
+          selectedCanvasLayerIndex < 0
+            ? 0
+            : canvasLayers[selectedCanvasLayerIndex].effects.rotate
+        )}
 
         <CanvasLayerList
           canvasLayers={canvasLayers}
@@ -204,8 +213,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
-  private renderInputs = () => (
-    <div className={styles.inputs}>
+  private renderInputs = (disabled: boolean, scale: number, rotate: number) => (
+    <div
+      className={classnames(styles.inputs, {
+        [styles.disabled]: disabled
+      })}
+    >
       <div>
         <div>
           <img src="scale.svg" />
@@ -216,8 +229,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
             type="range"
             min="0.5"
             max="5"
-            defaultValue="1"
             step="0.1"
+            value={scale}
+            disabled={disabled}
             onChange={this.handleOnChangeScale}
           />
         </div>
@@ -232,12 +246,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
             type="range"
             min="0"
             max="359"
-            defaultValue="0"
+            disabled={disabled}
+            value={rotate}
             onChange={this.handleOnChangeRotate}
-            onTouchMove={event => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
           />
         </div>
       </div>

@@ -4,6 +4,7 @@ interface CssExports {
   canvasLayerList: string;
   closeAvailableCanvasLayerImagesButton: string;
   container: string;
+  disabled: string;
   exportButton: string;
   exporting: string;
   fixedHeight: string;
