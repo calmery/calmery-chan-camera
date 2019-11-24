@@ -210,16 +210,16 @@ class Canvas extends React.Component<{}, ICanvasState> {
               isExporting={this.state.isExporting}
               onClick={this.handleOnExport}
             />
-
-            <ErrorMessage
-              hidden={errorMessage === null}
-              onClick={() => {
-                this.setState({ errorMessage: null });
-              }}
-            >
-              {errorMessage}
-            </ErrorMessage>
           </div>
+
+          <ErrorMessage
+            hidden={errorMessage === null}
+            onClick={() => {
+              this.setState({ errorMessage: null });
+            }}
+          >
+            {errorMessage}
+          </ErrorMessage>
         </div>
 
         <Modal
