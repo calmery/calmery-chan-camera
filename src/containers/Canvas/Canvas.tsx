@@ -519,6 +519,11 @@ class Canvas extends React.Component<{}, ICanvasState> {
     sendToGA(
       GOOGLE_ANALYTICS.CANVAS,
       GOOGLE_ANALYTICS_ACTION.CANVAS_NORMAL_LAYER_ADD,
+      (() => {
+        if (canvasLayer.id) {
+          return canvasLayer.id.toString();
+        }
+      })(),
       canvasLayer.id
     );
 
@@ -573,6 +578,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
     sendToGA(
       GOOGLE_ANALYTICS.CANVAS,
       GOOGLE_ANALYTICS_ACTION.CANVAS_NORMAL_LAYER_ADD,
+      id.toString(),
       id
     );
 
