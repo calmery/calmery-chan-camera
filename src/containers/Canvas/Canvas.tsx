@@ -67,6 +67,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public componentDidMount = async () => {
     this.setState({
+      canvasLayers: [
+        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "thumbnails/1.jpg")
+      ],
       canvasLogo: await convertUrlToLayer(
         CANVAS_LAYER_KIND.LOGO,
         "images/canvas-logo.png"
@@ -247,6 +250,15 @@ class Canvas extends React.Component<{}, ICanvasState> {
       })}
     >
       <div>
+        <input
+          id="canvas-checkbox-flip"
+          type="checkbox"
+          disabled={disabled}
+          onChange={this.handleOnChangeFlip}
+        />
+        <label htmlFor="canvas-checkbox-flip">レイヤーを左右反転する</label>
+      </div>
+      <div>
         <div>
           <img src="images/scale.svg" alt="拡大縮小" />
         </div>
@@ -297,6 +309,34 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   // Event Handlers
 
+  private handleOnChangeFlip = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
+
+    if (selectedCanvasLayerIndex < 0) {
+      return;
+    }
+
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
+    const checked = event.target.checked;
+
+    canvasLayers[selectedCanvasLayerIndex] = {
+      ...canvasLayer,
+      x: (() => {
+        if (canvasLayer.effects.flip === -1) {
+          return canvasLayer.x - canvasLayer.width * canvasLayer.effects.scale;
+        } else {
+          return canvasLayer.x + canvasLayer.width * canvasLayer.effects.scale;
+        }
+      })(),
+      effects: {
+        ...canvasLayer.effects,
+        flip: checked ? -1 : 1
+      }
+    };
+
+    this.setState({ canvasLayers });
+  };
+
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -313,9 +353,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
       ...canvasLayer,
       x:
         canvasLayer.x +
-        (canvasLayer.width * canvasLayer.effects.scale -
+        ((canvasLayer.width * canvasLayer.effects.scale -
           canvasLayer.width * scale) /
-          2,
+          2) *
+          canvasLayer.effects.flip,
       y:
         canvasLayer.y +
         (canvasLayer.height * canvasLayer.effects.scale -
