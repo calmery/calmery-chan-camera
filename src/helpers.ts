@@ -109,8 +109,7 @@ export const convertUrlToLayer = (
         y: 0,
         effects: {
           scale: 1,
-          rotate: 0,
-          flip: 1
+          rotate: 0
         }
       });
     };

@@ -15,6 +15,5 @@ export interface ICanvasLayer {
   effects: {
     scale: number;
     rotate: number;
-    flip: 1 | -1;
   };
 }
