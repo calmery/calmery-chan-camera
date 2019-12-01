@@ -67,9 +67,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public componentDidMount = async () => {
     this.setState({
-      canvasLayers: [
-        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "thumbnails/1.jpg")
-      ],
       canvasLogo: await convertUrlToLayer(
         CANVAS_LAYER_KIND.LOGO,
         "images/canvas-logo.png"
