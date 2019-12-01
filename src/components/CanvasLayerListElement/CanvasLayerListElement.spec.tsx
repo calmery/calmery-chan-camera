@@ -17,7 +17,8 @@ it("Renders without crashing", () => {
         y: 0,
         effects: {
           scale: 1,
-          rotate: 0
+          rotate: 0,
+          flip: 1
         }
       }}
       onSelect={() => {}}

@@ -22,11 +22,12 @@ const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
       xlinkHref={canvasLayer.base64}
       width={canvasLayer.width}
       height={canvasLayer.height}
-      transform={`translate(${canvasLayer.x}, ${canvasLayer.y}) scale(${
+      transform={`translate(${canvasLayer.x}, ${
+        canvasLayer.y
+      }) scale(${canvasLayer.effects.scale * canvasLayer.effects.flip}, ${
         canvasLayer.effects.scale
-      }, ${canvasLayer.effects.scale}) rotate(${
-        canvasLayer.effects.rotate
-      } ${canvasLayer.width / 2} ${canvasLayer.height / 2})`}
+      }) rotate(${canvasLayer.effects.rotate} ${canvasLayer.width /
+        2} ${canvasLayer.height / 2})`}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
       onTouchStart={onTouchStart}

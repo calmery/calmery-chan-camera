@@ -247,6 +247,14 @@ class Canvas extends React.Component<{}, ICanvasState> {
       })}
     >
       <div>
+        <input
+          type="checkbox"
+          disabled={disabled}
+          onChange={this.handleOnChangeFlip}
+        />
+        <label>レイヤーを左右反転する</label>
+      </div>
+      <div>
         <div>
           <img src="images/scale.svg" alt="拡大縮小" />
         </div>
@@ -296,6 +304,34 @@ class Canvas extends React.Component<{}, ICanvasState> {
   };
 
   // Event Handlers
+
+  private handleOnChangeFlip = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
+
+    if (selectedCanvasLayerIndex < 0) {
+      return;
+    }
+
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
+    const checked = event.target.checked;
+
+    canvasLayers[selectedCanvasLayerIndex] = {
+      ...canvasLayer,
+      x: (() => {
+        if (canvasLayer.effects.flip === -1) {
+          return canvasLayer.x - canvasLayer.width;
+        } else {
+          return canvasLayer.x + canvasLayer.width;
+        }
+      })(),
+      effects: {
+        ...canvasLayer.effects,
+        flip: checked ? -1 : 1
+      }
+    };
+
+    this.setState({ canvasLayers });
+  };
 
   private handleOnChangeScale = (
     event: React.ChangeEvent<HTMLInputElement>
