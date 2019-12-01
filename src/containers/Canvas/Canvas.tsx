@@ -67,9 +67,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public componentDidMount = async () => {
     this.setState({
-      canvasLayers: [
-        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "thumbnails/1.jpg")
-      ],
       canvasLogo: await convertUrlToLayer(
         CANVAS_LAYER_KIND.LOGO,
         "images/canvas-logo.png"
@@ -251,11 +248,12 @@ class Canvas extends React.Component<{}, ICanvasState> {
     >
       <div>
         <input
+          id="canvas-checkbox-flip"
           type="checkbox"
           disabled={disabled}
           onChange={this.handleOnChangeFlip}
         />
-        <label>レイヤーを左右反転する</label>
+        <label htmlFor="canvas-checkbox-flip">レイヤーを左右反転する</label>
       </div>
       <div>
         <div>
