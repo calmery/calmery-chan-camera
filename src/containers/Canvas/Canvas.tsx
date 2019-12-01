@@ -67,6 +67,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
 
   public componentDidMount = async () => {
     this.setState({
+      canvasLayers: [
+        await convertUrlToLayer(CANVAS_LAYER_KIND.BASE, "thumbnails/1.jpg")
+      ],
       canvasLogo: await convertUrlToLayer(
         CANVAS_LAYER_KIND.LOGO,
         "images/canvas-logo.png"
@@ -319,9 +322,9 @@ class Canvas extends React.Component<{}, ICanvasState> {
       ...canvasLayer,
       x: (() => {
         if (canvasLayer.effects.flip === -1) {
-          return canvasLayer.x - canvasLayer.width;
+          return canvasLayer.x - canvasLayer.width * canvasLayer.effects.scale;
         } else {
-          return canvasLayer.x + canvasLayer.width;
+          return canvasLayer.x + canvasLayer.width * canvasLayer.effects.scale;
         }
       })(),
       effects: {
