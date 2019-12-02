@@ -33,7 +33,7 @@
     "@types/redux-actions": "2.6.1",
     "@types/terser-webpack-plugin": "2.2.0",
     "@types/webpack-merge": "4.1.5",
-    "@typescript-eslint/eslint-plugin": "2.9.0",
+    "@typescript-eslint/eslint-plugin": "2.10.0",
     "@typescript-eslint/parser": "2.9.0",
     "autoprefixer": "9.7.3",
     "copy-webpack-plugin": "5.0.5",
