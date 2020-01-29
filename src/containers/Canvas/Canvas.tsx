@@ -216,7 +216,10 @@ class Canvas extends React.Component<{}, ICanvasState> {
                     : canvasLayers[selectedCanvasLayerIndex].effects.saturate,
                   selectedCanvasLayerIndex < 0
                     ? 1
-                    : canvasLayers[selectedCanvasLayerIndex].effects.hueRotate
+                    : canvasLayers[selectedCanvasLayerIndex].effects.hueRotate,
+                  selectedCanvasLayerIndex < 0
+                    ? 1
+                    : canvasLayers[selectedCanvasLayerIndex].effects.blur
                 )}
               </div>
 
@@ -291,7 +294,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
     scale: number,
     rotate: number,
     saturate: number,
-    hueRotate: number
+    hueRotate: number,
+    blur: number
   ) => (
     <div
       className={classnames(styles.inputs, {
@@ -373,6 +377,23 @@ class Canvas extends React.Component<{}, ICanvasState> {
           />
         </div>
       </div>
+      <div>
+        <div>
+          <img src="images/scale.svg" alt="拡大縮小" />
+        </div>
+        <div className={styles.fixedHeight}>
+          <input
+            className={styles.inputRange}
+            type="range"
+            min="0"
+            max="10"
+            step="1"
+            value={blur}
+            disabled={disabled}
+            onChange={this.handleOnChangeS2}
+          />
+        </div>
+      </div>
     </div>
   );
 
@@ -410,6 +431,26 @@ class Canvas extends React.Component<{}, ICanvasState> {
       effects: {
         ...canvasLayer.effects,
         hueRotate: parseInt(event.target.value, 10)
+      }
+    };
+
+    this.setState({ canvasLayers });
+  };
+
+  private handleOnChangeS2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
+
+    if (selectedCanvasLayerIndex < 0) {
+      return;
+    }
+
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
+
+    canvasLayers[selectedCanvasLayerIndex] = {
+      ...canvasLayer,
+      effects: {
+        ...canvasLayer.effects,
+        blur: parseInt(event.target.value, 10)
       }
     };
 
