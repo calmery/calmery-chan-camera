@@ -153,6 +153,39 @@ class Canvas extends React.Component<{}, ICanvasState> {
               xmlns="http://www.w3.org/2000/svg"
               xmlnsXlink="http://www.w3.org/1999/xlink"
             >
+              <defs>
+                <filter
+                  id="blur"
+                  x="20"
+                  y="20"
+                  width="200"
+                  height="200"
+                  filterUnits="userSpaceOnUse"
+                >
+                  <feGaussianBlur stdDeviation="5" />
+                </filter>
+
+                <filter id="rotate">
+                  <feColorMatrix type="hueRotate" values="90" />
+                </filter>
+
+                <filter id="sepia">
+                  <feColorMatrix type="saturate" values="0" />
+                </filter>
+              </defs>
+              <style>{`
+                .photo1 {
+                  filter: url(#blur);
+                }
+
+                .photo2 {
+                  filter: url(#rotate);
+                }
+
+                .photo3 {
+                  filter: url(#sepia);
+                }
+              `}</style>
               {canvasLayers.map(this.renderCanvasLayer)}
               {canvasLogo &&
                 this.renderCanvasLayer(
