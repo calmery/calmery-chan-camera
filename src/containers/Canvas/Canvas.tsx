@@ -71,11 +71,21 @@ class Canvas extends React.Component<{}, ICanvasState> {
   private canvas: React.RefObject<SVGSVGElement> = React.createRef();
 
   public componentDidMount = async () => {
+    console.log("componentDidMount");
+
+    const x = await convertUrlToLayer(
+      CANVAS_LAYER_KIND.BASE,
+      "thumbnails/1.jpg"
+    );
+
+    console.log(x);
+
     this.setState({
       canvasLogo: await convertUrlToLayer(
         CANVAS_LAYER_KIND.LOGO,
         "images/canvas-logo.png"
-      )
+      ),
+      canvasLayers: [x]
     });
   };
 
@@ -112,6 +122,8 @@ class Canvas extends React.Component<{}, ICanvasState> {
   // Render Functions
 
   public render = () => {
+    console.log("Render");
+
     const {
       errorMessage,
       canvasLayers,
@@ -200,7 +212,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
                     : canvasLayers[selectedCanvasLayerIndex].effects.scale,
                   selectedCanvasLayerIndex < 0
                     ? 0
-                    : canvasLayers[selectedCanvasLayerIndex].effects.rotate
+                    : canvasLayers[selectedCanvasLayerIndex].effects.rotate,
+                  selectedCanvasLayerIndex < 0
+                    ? 1
+                    : canvasLayers[selectedCanvasLayerIndex].effects.saturate,
+                  selectedCanvasLayerIndex < 0
+                    ? 1
+                    : canvasLayers[selectedCanvasLayerIndex].effects.hueRotate
                 )}
               </div>
 
@@ -270,7 +288,13 @@ class Canvas extends React.Component<{}, ICanvasState> {
     );
   };
 
-  private renderInputs = (disabled: boolean, scale: number, rotate: number) => (
+  private renderInputs = (
+    disabled: boolean,
+    scale: number,
+    rotate: number,
+    saturate: number,
+    hueRotate: number
+  ) => (
     <div
       className={classnames(styles.inputs, {
         [styles.disabled]: disabled
@@ -318,8 +342,81 @@ class Canvas extends React.Component<{}, ICanvasState> {
           />
         </div>
       </div>
+      <div>
+        <div>
+          <img src="images/scale.svg" alt="拡大縮小" />
+        </div>
+        <div className={styles.fixedHeight}>
+          <input
+            className={styles.inputRange}
+            type="range"
+            min="0"
+            max="1"
+            value={saturate}
+            disabled={disabled}
+            onChange={this.handleOnChangeS}
+          />
+        </div>
+      </div>
+      <div>
+        <div>
+          <img src="images/scale.svg" alt="拡大縮小" />
+        </div>
+        <div className={styles.fixedHeight}>
+          <input
+            className={styles.inputRange}
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+            value={hueRotate}
+            disabled={disabled}
+            onChange={this.handleOnChangeS1}
+          />
+        </div>
+      </div>
     </div>
   );
+
+  private handleOnChangeS = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
+
+    if (selectedCanvasLayerIndex < 0) {
+      return;
+    }
+
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
+
+    canvasLayers[selectedCanvasLayerIndex] = {
+      ...canvasLayer,
+      effects: {
+        ...canvasLayer.effects,
+        saturate: parseInt(event.target.value, 10)
+      }
+    };
+
+    this.setState({ canvasLayers });
+  };
+
+  private handleOnChangeS1 = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { canvasLayers, selectedCanvasLayerIndex } = this.state;
+
+    if (selectedCanvasLayerIndex < 0) {
+      return;
+    }
+
+    const canvasLayer = canvasLayers[selectedCanvasLayerIndex];
+
+    canvasLayers[selectedCanvasLayerIndex] = {
+      ...canvasLayer,
+      effects: {
+        ...canvasLayer.effects,
+        hueRotate: parseInt(event.target.value, 10)
+      }
+    };
+
+    this.setState({ canvasLayers });
+  };
 
   private renderCanvasLayer = (canvasLayer: ICanvasLayer, index: number) => {
     return (
