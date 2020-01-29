@@ -52,7 +52,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
       isDraggingCanvasLayer: false,
       isOpenInformation: false,
       isOpenAvailableCanvasLayerImages: false,
-      selectedCanvasLayerIndex: -1,
+      selectedCanvasLayerIndex: 0,
       isExportError: false,
       canvasLogo: null,
       offsetMousePosition: {
@@ -77,8 +77,6 @@ class Canvas extends React.Component<{}, ICanvasState> {
       CANVAS_LAYER_KIND.BASE,
       "thumbnails/1.jpg"
     );
-
-    console.log(x);
 
     this.setState({
       canvasLogo: await convertUrlToLayer(
