@@ -110,7 +110,10 @@ export const convertUrlToLayer = (
         effects: {
           scale: 1,
           rotate: 0,
-          flip: 1
+          flip: 1,
+          saturate: 1,
+          hueRotate: 0,
+          blur: 0
         }
       });
     };

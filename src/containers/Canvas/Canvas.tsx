@@ -38,6 +38,11 @@ interface ICanvasState {
   errorMessage: string | null;
 }
 
+enum FeColorMatrix {
+  saturate = "saturate",
+  hueRotate = "hueRotate"
+}
+
 class Canvas extends React.Component<{}, ICanvasState> {
   constructor(props: {}) {
     super(props);
@@ -153,39 +158,7 @@ class Canvas extends React.Component<{}, ICanvasState> {
               xmlns="http://www.w3.org/2000/svg"
               xmlnsXlink="http://www.w3.org/1999/xlink"
             >
-              <defs>
-                <filter
-                  id="blur"
-                  x="20"
-                  y="20"
-                  width="200"
-                  height="200"
-                  filterUnits="userSpaceOnUse"
-                >
-                  <feGaussianBlur stdDeviation="5" />
-                </filter>
-
-                <filter id="rotate">
-                  <feColorMatrix type="hueRotate" values="90" />
-                </filter>
-
-                <filter id="sepia">
-                  <feColorMatrix type="saturate" values="0" />
-                </filter>
-              </defs>
-              <style>{`
-                .photo1 {
-                  filter: url(#blur);
-                }
-
-                .photo2 {
-                  filter: url(#rotate);
-                }
-
-                .photo3 {
-                  filter: url(#sepia);
-                }
-              `}</style>
+              {this.renderFilters()}
               {canvasLayers.map(this.renderCanvasLayer)}
               {canvasLogo &&
                 this.renderCanvasLayer(
@@ -270,6 +243,30 @@ class Canvas extends React.Component<{}, ICanvasState> {
           <AvailableCanvasLayerImages onSelect={this.handleOnAddCanvasLayer} />
         </Modal>
       </React.Fragment>
+    );
+  };
+
+  private renderFilters = () => {
+    const { canvasLayers, canvasLogo } = this.state;
+
+    return (
+      <defs>
+        {canvasLogo && this.renderFilter(canvasLogo)}
+        {canvasLayers.map(this.renderFilter)}
+      </defs>
+    );
+  };
+
+  private renderFilter = (canvasLayer: ICanvasLayer) => {
+    const { base64 } = canvasLayer;
+    const { saturate, hueRotate, blur } = canvasLayer.effects;
+
+    return (
+      <filter id={`canvas-layer-${base64.slice(0, 50)}`}>
+        <feColorMatrix type={FeColorMatrix.hueRotate} values={`${hueRotate}`} />
+        <feColorMatrix type={FeColorMatrix.saturate} values={`${saturate}`} />
+        <feGaussianBlur stdDeviation={`${blur}`} />
+      </filter>
     );
   };
 

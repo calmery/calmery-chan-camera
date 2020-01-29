@@ -16,5 +16,8 @@ export interface ICanvasLayer {
     scale: number;
     rotate: number;
     flip: 1 | -1;
+    saturate: number;
+    hueRotate: number;
+    blur: number;
   };
 }

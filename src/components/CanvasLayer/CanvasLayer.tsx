@@ -19,6 +19,7 @@ const CanvasLayer: React.FC<ICanvasLayerProps> = props => {
   } = props;
   return (
     <image
+      filter={`url(#canvas-layer-${canvasLayer.base64.slice(0, 50)})`}
       xlinkHref={canvasLayer.base64}
       width={canvasLayer.width}
       height={canvasLayer.height}
